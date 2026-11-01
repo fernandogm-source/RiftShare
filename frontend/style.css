@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: "Faculty Glyphic", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #C5A86A;
+    background-color: #1A1A1A;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+ /*        ////////////////HEADER////////////////             */
+
+header {
+    border-bottom: 2px solid #C5A86A;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1A1A1A;
+    flex-shrink: 0;
+}
+
+#logo {
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    height: 100%;
+    width: 200px;
+}
+
+#logo img {
+    width: 150px;
+    height: auto;
+}
+
+#loginRegisterbtn {
+    display: flex;
+    align-items: center; 
+    gap: 10px;          
+    padding-right: 20px; 
+    height: 100%;
+}
+
+#loginRegisterbtn button {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    background-color: #1A1A1A;
+    border: 2px solid #C5A86A;
+    color: #C5A86A;
+}
+
+#loginRegisterbtn button:hover {
+    color: #1A1A1A;
+    background-color: #C5A86A;
+    border: #1A1A1A;
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#loginRegister {
+    border: solid 2px #C5A86A;
+    padding: 40px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 450px;
+    background-color: #1A1A1A;
+}
+
+#loginRegister img {
+    width: 150px;
+    height: auto;
+}
+
+#loginRegister h1 {
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 24px;
+}
+
+#loginRegister label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+#loginRegister input {
+    border-radius: 5px;
+    width: 100%;
+    padding: 10px;
+    border: solid 2px #C5A86A;
+    background-color: #1A1A1A;
+    color: white;
+}
+
+#enviar {
+    margin-top: 25px;
+}
+
+#loginRegister button[type="submit"] {
+    border-radius: 5px;
+    padding: 12px;
+    background-color: #C5A86A;
+    color: #1A1A1A;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+#loginRegister button[type="submit"]:hover {
+    opacity: 0.9;
+}
+
+#loginRegister p {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+#loginRegister a {
+    text-decoration: none;
+    color: #C5A86A;
+    font-weight: bold;
+}
+
+#loginRegister a:hover {
+    text-decoration: underline;
+}
+
+/* /////////////////////////////////////////////////////////////////////////////// */
+
+ /*        ////////////////LoginRegister////////////////             */
+
+.main-loginRegister {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* /////////////////////////////////////////////////////////////////////////////// */
+
+ /*        ////////////////Index////////////////             */
+
+.main-index {
+    background-color: #1A1A1A;
+    height: calc(100vh - 70px);
+    width: 100%;
+    color: #C5A86A;
+}
+
+.main-index h1{
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+/* /////////////////////////////////////////////////////////////////////////////// */
