@@ -5,6 +5,7 @@ const pool = require('../src/db');
 const CARDS_FILE = path.join(__dirname, '..', '..', 'cards.json');
 const SCHEMA_FILE = path.join(__dirname, 'schema.sql');
 const COLLECTION_FILE = path.join(__dirname, 'collection.sql');
+const USERS_FILE = path.join(__dirname, 'users.sql');
 
 async function getOrCreate(client, table, name, cache) {
   if (cache.has(name)) return cache.get(name);
@@ -20,6 +21,7 @@ async function seed() {
   const cards = JSON.parse(fs.readFileSync(CARDS_FILE, 'utf8'));
   const schema = fs.readFileSync(SCHEMA_FILE, 'utf8');
   const collection = fs.readFileSync(COLLECTION_FILE, 'utf8');
+  const users = fs.readFileSync(USERS_FILE, 'utf8');
   const client = await pool.connect();
 
   try {
@@ -97,6 +99,7 @@ async function seed() {
     }
 
     await client.query(collection);
+    await client.query(users);
 
     await client.query('COMMIT');
     console.log(

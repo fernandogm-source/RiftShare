@@ -169,5 +169,21 @@ header {
     margin-top: 20px;
     margin-left: 20px;
 }
-
+/*///////////////////////Cartes//////////////////////// */
+#cartas{
+    display: grid;
+    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.imagenCarta{
+    width: 100%;
+    border-bottom: #C5A86A 2px solid;
+}
+.contenedor{
+    border: #C5A86A solid 2px;
+    padding: 5px;
+    border-radius: 15px;
+}
 /* /////////////////////////////////////////////////////////////////////////////// */
