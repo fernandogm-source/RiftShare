@@ -172,18 +172,57 @@ header {
 /*///////////////////////Cartes//////////////////////// */
 #cartas{
     display: grid;
-    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
     margin-left: 20px;
     margin-right: 20px;
 }
 .imagenCarta{
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.imgDiv{
+    position: relative;
+    aspect-ratio: 5 / 7;
+    overflow: hidden;
     border-bottom: #C5A86A 2px solid;
+}
+.battlefieldImg{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140%;
+    height: 71.43%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    object-fit: contain;
 }
 .contenedor{
     border: #C5A86A solid 2px;
     padding: 5px;
     border-radius: 15px;
 }
+#paginacion{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+#paginacion button{
+    border: solid 2px #C5A86A;
+    border-radius: 5px;
+    background-color: #1A1A1A;
+    color: #C5A86A;
+    height: 45px;
+    width: 80px;
+    font-size: 30px;
+    text-align: center;
+}
+#paginacion button:hover{
+    border: solid 2px #1A1A1A;
+    background-color: #C5A86A;
+    color: #1A1A1A;
+    cursor: pointer;
+}
+
 /* /////////////////////////////////////////////////////////////////////////////// */
