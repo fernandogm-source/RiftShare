@@ -1,5 +1,5 @@
 let cartas;
-let pagina = 26;
+let pagina = 1;
 
 async function cargarCartas(page,limit = 12) {
     const respuesta = await fetch("/api/cards?page="+page+"&limit="+limit);
@@ -17,8 +17,31 @@ async function cargarCartas(page,limit = 12) {
         document.getElementById("siguiente").removeAttribute("hidden");
     }
     pintarCartas();
-    console.log(cartas);
 };
+
+async function cargarDetails(cardId) {
+    const respuesta = await fetch("/api/cards/"+cardId);
+    let carta = await respuesta.json();
+    console.log(carta);
+    pintarDetails(carta);
+};
+
+function pintarDetails(card){
+    const img = document.createElement("img");
+    img.src = card.image_url;
+    document.getElementById("imgDetails").appendChild(img);
+};
+
+function borrarDetails(){
+    const img = document.getElementById("imgDetails");
+    while(img.hasChildNodes()){
+        img.removeChild(img.firstChild);
+    }
+    const info = document.getElementById("infoDetails");
+    while(info.hasChildNodes()){
+        info.removeChild(info.firstChild);
+    }
+}
 
 cargarCartas(pagina);
 
@@ -28,6 +51,14 @@ function pintarCartas(){
         const contenedor = document.createElement("div");
         contenedor.id = element.id;
         contenedor.className = "contenedor";
+            contenedor.addEventListener("click", () =>{
+                document.getElementById("details").showModal();
+                document.getElementById("cerrarDetails").addEventListener("click", () =>{
+                    document.getElementById("details").close();
+                    borrarDetails();
+                })
+                cargarDetails(element.id);
+            });
 
         const imagen = document.createElement("img");
         const imgDiv = document.createElement("div");
@@ -60,7 +91,7 @@ function vaciarCartas(){
     while(lista.hasChildNodes()){
         lista.removeChild(lista.firstChild);
     }
-}
+};
 
 document.getElementById("siguiente").addEventListener("click",() => {
     vaciarCartas();

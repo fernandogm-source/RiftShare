@@ -201,6 +201,7 @@ header {
     border: #C5A86A solid 2px;
     padding: 5px;
     border-radius: 15px;
+    cursor: pointer;
 }
 #paginacion{
     display: flex;
@@ -225,4 +226,36 @@ header {
     cursor: pointer;
 }
 
+/* /////////////////////////////////////////////////////////////////////////////// */
+/*///////////////////////Details//////////////////////// */
+dialog:open{
+    width: 800px;
+    height: 700px;
+    background-color: #1A1A1A;
+    color: #C5A86A;
+}
+dialog:open .imgDetails{
+    width: 40%;
+}
+dialog:open .infoDetails{
+    width: 60%;
+}
+dialog:open img{
+    width: 250px;
+}
+dialog:open button{
+    border: solid 2px #C5A86A;
+    border-radius: 5px;
+    background-color: #1A1A1A;
+    color: #C5A86A;
+    height: 45px;
+    width: 80px;
+    font-size: 15px;
+}
+dialog:open button:hover{
+    border: solid 2px #1A1A1A;
+    background-color: #C5A86A;
+    color: #1A1A1A;
+    cursor: pointer;
+}
 /* /////////////////////////////////////////////////////////////////////////////// */

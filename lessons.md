@@ -4,11 +4,10 @@
 - Sesiones 1, 2 y 3 completadas.
 - Sesión 2 (pintar cartas): micro-pasos 1 a 4 completados. Cada carta es un `div` con `id`, `div.imgDiv` con la `img`, y dos `p` con clases `nombre` y `tipo`.
 - Sesión 3 (paginación): completada. Botones «anterior» y «siguiente» con `pagina` como estado, URL con `page` y `limit`, vaciado de `#cartas` antes de repintar, y ocultación de los botones con `hidden` según `totalPages`.
-- Trabajo extra en curso: los campos de batalla (`card_type === "Battlefield"`) tienen que verse con el mismo tamaño que el resto de cartas. Se usa `position: relative` en `.imgDiv`, `aspect-ratio: 5 / 7`, y `.battlefieldImg` girada 90 grados con `position: absolute`. Pendiente de confirmar en el navegador y de medir la proporción real de las imágenes.
-- Próximo paso: sesión 4, detalle de una carta (`/api/cards/:id`).
+- Trabajo extra completado: los campos de batalla (`card_type === "Battlefield"`) tienen que verse con el mismo tamaño que el resto de cartas. Se usa `position: relative` en `.imgDiv`, `aspect-ratio: 5 / 7`, y `.battlefieldImg` girada 90 grados con `position: absolute`. Comprobado en el navegador.
+- Sesión 4 en curso: detalle de carta (`/api/cards/:id`), en un modal dentro de `index.html` y no en página nueva. Ver registro abajo.
 - Pendientes no bloqueantes:
-  - **Urgente**: en `app.js`, `let pagina = 26;` es un valor de prueba. Devolverlo a `1`.
-  - Quitar el `console.log` de depuración de `app.js`.
+  - Quitar el `console.log` de depuración de `cargarDetails`.
   - Sustituir el `limit = 12` de `cargarCartas` por una constante (`CARTAS_POR_PAGINA`) declarada arriba. Pendiente la prueba de cambiar el límite a 5 y comprobar el número de páginas.
   - Revisar el scroll de `.main-index` con 20 cartas.
   - Añadir estilos a `.nombre` y `.tipo`.
@@ -42,12 +41,21 @@
 - Comprobado: la última página tiene las cartas restantes y «siguiente» desaparece.
 - Efecto de cambiar `limit`: cambia las cartas por página, el número de páginas (`Math.ceil(total / limit)`) y el desplazamiento (`(page - 1) * limit`). El servidor corrige cualquier valor mayor de 100.
 
-### Trabajo extra – Campos de batalla (en curso)
+### Trabajo extra – Campos de batalla (completado)
 - Las imágenes de campos de batalla se giran 90 grados con `transform: rotate(90deg)` para que encajen en la cuadrícula.
 - Primer intento: `object-fit: contain` sobre la imagen girada. No tuvo efecto, porque la caja ya tenía la proporción de la imagen.
 - La rotación no cambia el espacio que ocupa el elemento: la imagen girada se salía de su caja y tapaba el texto.
 - Solución propuesta: `.imgDiv` con `position: relative`, `aspect-ratio: 5 / 7` y `overflow: hidden`. `.battlefieldImg` con `position: absolute`, centrada con `top`/`left` al 50%, `width: 140%`, `height: 71.43%` y `transform: translate(-50%, -50%) rotate(90deg)`.
-- Pendiente: confirmar la proporción real de las imágenes de campo de batalla (7:5 si encaja sin recorte).
+- Resuelto: comprobado en el navegador, con el mismo tamaño que el resto de cartas.
+
+### Sesión 4 – Detalle de carta (en curso, 02/11/2026)
+- Cambio de planteamiento: en lugar de página nueva, el detalle se muestra en un modal `<dialog id="details">` dentro de `index.html`.
+- HTML del modal: `#imgDetails` (imagen), `#infoDetails` (datos) y el botón `#cerrarDetails` («Cerrar»). Sin atributo `open`, el modal empieza oculto.
+- CSS: `dialog { display: flex; }` anulaba el comportamiento por defecto del navegador y el modal se veía al cargar. Solucionado limitando la regla a los `dialog` con `open`.
+- Clic en una carta: el listener de `.contenedor` llama a `showModal()` y a `cargarDetails(element.id)`.
+- `cargarDetails`: `fetch` a `/api/cards/:id` con `await`, `json()` con `await` y llamada a `pintarDetails(carta)`, que pinta la imagen.
+- `borrarDetails()` creada, pero todavía no se llama: cada clic añade otra imagen.
+- Pendiente: llamar a `borrarDetails()`, comprobar `respuesta.ok` (404), `alt` en la imagen, datos de la carta (nombre, tipo, dominios, `text_plain` con `textContent`), listener del botón «Cerrar», cerrar al hacer clic fuera (opcional) y `lang="es"` en `index.html`.
 
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
@@ -72,6 +80,10 @@
 - `aspect-ratio` fija la forma de una caja sin fijar su tamaño.
 - `position: absolute` respecto a un padre con `position: relative`; los porcentajes se calculan sobre el padre.
 - El orden de `transform: translate(...) rotate(...)` importa: se aplica de derecha a izquierda.
+- `<dialog>` está oculto por defecto; `showModal()` lo abre como modal y `close()` lo cierra. Una regla `display` en tu CSS puede anular ese comportamiento.
+- Un selector de atributo como `dialog[open]` aplica estilos solo cuando el atributo existe.
+- `fetch` y `json()` devuelven promesas: hacen falta dos `await`, uno para cada uno.
+- `respuesta.ok` indica si el servidor respondió con éxito (código 200 a 299).
 
 ## Errores frecuentes
 - Llamar a `pintarCartas()` antes de que llegue la respuesta: `cartas` es `undefined`.
@@ -85,3 +97,6 @@
 - Esperar que `object-fit` o `transform` cambien el hueco que ocupa un elemento: no lo hacen.
 - Dejar valores de prueba en el código (`let pagina = 26;`).
 - Escribir una clase en JavaScript con un nombre distinto al de la hoja de estilos (`battlefield_img` frente a `battlefieldImg`): la regla no se aplica y no hay error visible.
+- Quitar `await` de `fetch`: `respuesta.json` no existe porque `respuesta` es una promesa.
+- Poner `display` en `dialog` sin restringirlo a `[open]`: el modal se ve al cargar la página.
+- No vaciar el contenido del modal antes de pintar otra carta: se ven datos de la anterior o se acumulan.
