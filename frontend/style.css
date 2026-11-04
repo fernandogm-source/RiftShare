@@ -1,11 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap');
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 html, body {
     font-family: "Faculty Glyphic", sans-serif;
     font-weight: 400;
@@ -229,19 +223,23 @@ header {
 /* /////////////////////////////////////////////////////////////////////////////// */
 /*///////////////////////Details//////////////////////// */
 dialog:open{
+    display: flex;
     width: 800px;
-    height: 700px;
+    height: 600px;
+    max-width: 90vw;
     background-color: #1A1A1A;
     color: #C5A86A;
 }
-dialog:open .imgDetails{
-    width: 40%;
+dialog:open #imgDetails{
+    width: 50%;
 }
-dialog:open .infoDetails{
-    width: 60%;
+dialog:open #infoDetails{
+    width: 50%;
+    padding: 10px;
+    color: white;
 }
 dialog:open img{
-    width: 250px;
+    width: 100%;
 }
 dialog:open button{
     border: solid 2px #C5A86A;
@@ -257,5 +255,15 @@ dialog:open button:hover{
     background-color: #C5A86A;
     color: #1A1A1A;
     cursor: pointer;
+}
+#cerrarDetails{
+    margin-top: auto;
+}
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+.etiquetaDetails{
+    font-weight: bold;
+    color: #C5A86A;
 }
 /* /////////////////////////////////////////////////////////////////////////////// */

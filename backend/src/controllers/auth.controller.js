@@ -1,22 +1,10 @@
-const crypto = require('crypto');
 const argon2 = require('argon2');
+const jwt = require('jsonwebtoken');
 const pool = require('../db');
 
-const SESSION_COOKIE = 'session';
-const SESSION_MAX_AGE = 60 * 60;
+const TOKEN_EXPIRES_IN = '1h';
 const MIN_PASSWORD_LENGTH = 8;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function getSessionToken(req) {
-  const cookies = req.headers.cookie ?? '';
-  const pair = cookies.split(';').map((c) => c.trim()).find((c) => c.startsWith(`${SESSION_COOKIE}=`));
-  return pair ? pair.slice(SESSION_COOKIE.length + 1) : null;
-}
-
-function sessionCookie(value, maxAge) {
-  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-  return `${SESSION_COOKIE}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
-}
 
 async function register(req, res) {
   const { username, email, password } = req.body ?? {};
@@ -67,26 +55,20 @@ async function login(req, res) {
     return res.status(401).json({ error: 'Email o contraseña incorrectos' });
   }
 
-  const token = crypto.randomBytes(32).toString('hex');
-  await pool.query(
-    `INSERT INTO sessions (token, user_id, expires_at)
-     VALUES ($1, $2, NOW() + INTERVAL '1 hour')`,
-    [token, user.id]
-  );
-
-  res.setHeader('Set-Cookie', sessionCookie(token, SESSION_MAX_AGE));
-  res.json({ id: user.id, username: user.username, email: user.email, role: user.role });
-}
-
-async function logout(req, res) {
-  const token = getSessionToken(req);
-
-  if (token) {
-    await pool.query('DELETE FROM sessions WHERE token = $1', [token]);
+  if (!process.env.JWT_SECRET) {
+    throw new Error('Falta JWT_SECRET en el .env');
   }
 
-  res.setHeader('Set-Cookie', sessionCookie('', 0));
-  res.status(204).end();
+  const token = jwt.sign(
+    { username: user.username, role: user.role },
+    process.env.JWT_SECRET,
+    { subject: String(user.id), expiresIn: TOKEN_EXPIRES_IN }
+  );
+
+  res.json({
+    token,
+    user: { id: user.id, username: user.username, email: user.email, role: user.role },
+  });
 }
 
-module.exports = { register, login, logout };
+module.exports = { register, login };

@@ -22,13 +22,20 @@ async function cargarCartas(page,limit = 12) {
 async function cargarDetails(cardId) {
     const respuesta = await fetch("/api/cards/"+cardId);
     let carta = await respuesta.json();
-    console.log(carta);
     pintarDetails(carta);
 };
 
 function pintarDetails(card){
     const img = document.createElement("img");
     img.src = card.image_url;
+    img.alt = card.name;
+
+    document.getElementById("detailsCarta").textContent = card.name;
+    document.getElementById("detailsTipo").textContent = card.card_type;
+    document.getElementById("detailsDominio").textContent = card.domains;
+    document.getElementById("detailsRareza").textContent = card.rarity;
+    document.getElementById("detailsTexto").textContent = card.accessibility_text;
+
     document.getElementById("imgDetails").appendChild(img);
 };
 
@@ -37,10 +44,11 @@ function borrarDetails(){
     while(img.hasChildNodes()){
         img.removeChild(img.firstChild);
     }
-    const info = document.getElementById("infoDetails");
-    while(info.hasChildNodes()){
-        info.removeChild(info.firstChild);
-    }
+    document.getElementById("detailsCarta").textContent = "";
+    document.getElementById("detailsTipo").textContent = "";
+    document.getElementById("detailsDominio").textContent = "";
+    document.getElementById("detailsRareza").textContent = "";
+    document.getElementById("detailsTexto").textContent = "";
 }
 
 cargarCartas(pagina);
@@ -53,10 +61,6 @@ function pintarCartas(){
         contenedor.className = "contenedor";
             contenedor.addEventListener("click", () =>{
                 document.getElementById("details").showModal();
-                document.getElementById("cerrarDetails").addEventListener("click", () =>{
-                    document.getElementById("details").close();
-                    borrarDetails();
-                })
                 cargarDetails(element.id);
             });
 
@@ -106,3 +110,7 @@ document.getElementById("anterior").addEventListener("click",() => {
         cargarCartas(pagina);
     }
 });
+document.getElementById("cerrarDetails").addEventListener("click", () =>{
+    document.getElementById("details").close();
+});
+document.getElementById("details").addEventListener("close", borrarDetails);

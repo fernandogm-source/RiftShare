@@ -5,9 +5,13 @@
 - Sesión 2 (pintar cartas): micro-pasos 1 a 4 completados. Cada carta es un `div` con `id`, `div.imgDiv` con la `img`, y dos `p` con clases `nombre` y `tipo`.
 - Sesión 3 (paginación): completada. Botones «anterior» y «siguiente» con `pagina` como estado, URL con `page` y `limit`, vaciado de `#cartas` antes de repintar, y ocultación de los botones con `hidden` según `totalPages`.
 - Trabajo extra completado: los campos de batalla (`card_type === "Battlefield"`) tienen que verse con el mismo tamaño que el resto de cartas. Se usa `position: relative` en `.imgDiv`, `aspect-ratio: 5 / 7`, y `.battlefieldImg` girada 90 grados con `position: absolute`. Comprobado en el navegador.
-- Sesión 4 en curso: detalle de carta (`/api/cards/:id`), en un modal dentro de `index.html` y no en página nueva. Ver registro abajo.
+- Sesión 4 en curso (casi completada): detalle de carta (`/api/cards/:id`) en un modal dentro de `index.html`. Ver registro abajo.
+- Autenticación con JWT (backend): completada. Login devuelve `{ token, user }`, tabla `sessions` y ruta de logout eliminadas. Frontend de login/registro pendiente.
 - Pendientes no bloqueantes:
-  - Quitar el `console.log` de depuración de `cargarDetails`.
+  - Comprobar `respuesta.ok` en `cargarDetails` y `cargarCartas`.
+  - Mostrar los dominios con `join(", ")` en el modal (ahora se ven separados por comas sin espacio).
+  - Comprobar si el fondo del modal debe ser transparente (ahora es `#1A1A1A` sólido).
+  - Revisar el reset `*` de `style.css`, que se quitó y vuelve a afectar a márgenes y padding.
   - Sustituir el `limit = 12` de `cargarCartas` por una constante (`CARTAS_POR_PAGINA`) declarada arriba. Pendiente la prueba de cambiar el límite a 5 y comprobar el número de páginas.
   - Revisar el scroll de `.main-index` con 20 cartas.
   - Añadir estilos a `.nombre` y `.tipo`.
@@ -48,14 +52,25 @@
 - Solución propuesta: `.imgDiv` con `position: relative`, `aspect-ratio: 5 / 7` y `overflow: hidden`. `.battlefieldImg` con `position: absolute`, centrada con `top`/`left` al 50%, `width: 140%`, `height: 71.43%` y `transform: translate(-50%, -50%) rotate(90deg)`.
 - Resuelto: comprobado en el navegador, con el mismo tamaño que el resto de cartas.
 
-### Sesión 4 – Detalle de carta (en curso, 02/11/2026)
+### Sesión 4 – Detalle de carta (en curso, 04/11/2026)
 - Cambio de planteamiento: en lugar de página nueva, el detalle se muestra en un modal `<dialog id="details">` dentro de `index.html`.
-- HTML del modal: `#imgDetails` (imagen), `#infoDetails` (datos) y el botón `#cerrarDetails` («Cerrar»). Sin atributo `open`, el modal empieza oculto.
-- CSS: `dialog { display: flex; }` anulaba el comportamiento por defecto del navegador y el modal se veía al cargar. Solucionado limitando la regla a los `dialog` con `open`.
+- HTML del modal: `#imgDetails` (imagen), `#infoDetails` (datos con etiquetas `p.etiquetaDetails` y valores en `p#detailsCarta`, `#detailsTipo`, `#detailsDominio`, `#detailsRareza`, `#detailsTexto`) y el botón `#cerrarDetails` («Cerrar»). Sin atributo `open`, el modal empieza oculto.
+- CSS: `dialog { display: flex; }` anulaba el comportamiento por defecto del navegador y el modal se veía al cargar. Solucionado limitando la regla a los `dialog:open`.
 - Clic en una carta: el listener de `.contenedor` llama a `showModal()` y a `cargarDetails(element.id)`.
-- `cargarDetails`: `fetch` a `/api/cards/:id` con `await`, `json()` con `await` y llamada a `pintarDetails(carta)`, que pinta la imagen.
-- `borrarDetails()` creada, pero todavía no se llama: cada clic añade otra imagen.
-- Pendiente: llamar a `borrarDetails()`, comprobar `respuesta.ok` (404), `alt` en la imagen, datos de la carta (nombre, tipo, dominios, `text_plain` con `textContent`), listener del botón «Cerrar», cerrar al hacer clic fuera (opcional) y `lang="es"` en `index.html`.
+- `cargarDetails`: `fetch` a `/api/cards/:id` con `await`, `json()` con `await` y llamada a `pintarDetails(carta)`, que pinta la imagen (con `alt`) y los datos con `textContent`.
+- Listener de «Cerrar» registrado una sola vez en el nivel superior. Antes estaba dentro del clic de cada carta y se acumulaba.
+- Limpieza con `details.addEventListener("close", borrarDetails)`. Así se vacía el modal tanto con «Cerrar» como con la tecla Escape; si no, quedaban imágenes duplicadas.
+- Cerrar al hacer clic fuera: se probó con `e.target === details`, pero se decidió quitarlo.
+- Layout: imagen a la izquierda e info a la derecha (`#imgDetails` y `#infoDetails` al 50%). Modal con `max-width: 90vw`.
+- `lang="es"` en `index.html` y `console.log` de depuración eliminado.
+- Pendiente: comprobar `respuesta.ok` (404), mostrar los dominios con `join(", ")`, decidir si el fondo del modal es transparente y colocar el botón «Cerrar» centrado debajo del contenido.
+
+### Autenticación con JWT – backend (completada, 04/11/2026)
+- Se sustituyó la cookie `session` y la tabla `sessions` por un JWT firmado con `jsonwebtoken`, con caducidad de 1 hora.
+- Login: devuelve `{ token, user: { id, username, email, role } }`. El `sub` del token es el id del usuario (como texto) y `JWT_SECRET` se lee del `.env`.
+- Logout eliminado: sin estado en el servidor, el cliente borra el token. Nadie lo usaba en el frontend.
+- `users.sql`: `DROP TABLE IF EXISTS sessions;` para quitarla también de la base de datos existente.
+- Pendiente del paso: el frontend de login y registro, y el middleware que proteja las rutas de colección (lo que se aplica con `Authorization: Bearer <token>`).
 
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
@@ -84,6 +99,10 @@
 - Un selector de atributo como `dialog[open]` aplica estilos solo cuando el atributo existe.
 - `fetch` y `json()` devuelven promesas: hacen falta dos `await`, uno para cada uno.
 - `respuesta.ok` indica si el servidor respondió con éxito (código 200 a 299).
+- `dialog` tiene un evento `close` que se dispara con `close()`, con un botón o con la tecla Escape. Es el sitio adecuado para limpiar el modal.
+- Un `dialog` abierto con `showModal()` se centra con su `margin: auto` por defecto. Un reset `* { margin: 0 }` lo desplaza.
+- Un `dialog` con `display: flex` pone sus hijos en fila. Para apilarlos, `flex-direction: column`.
+- `e.target` en un clic indica el elemento que se pulsó. Con un `dialog`, el `target` es el propio dialog si pulsas en el `::backdrop`.
 
 ## Errores frecuentes
 - Llamar a `pintarCartas()` antes de que llegue la respuesta: `cartas` es `undefined`.
@@ -100,3 +119,5 @@
 - Quitar `await` de `fetch`: `respuesta.json` no existe porque `respuesta` es una promesa.
 - Poner `display` en `dialog` sin restringirlo a `[open]`: el modal se ve al cargar la página.
 - No vaciar el contenido del modal antes de pintar otra carta: se ven datos de la anterior o se acumulan.
+- Registrar un listener dentro de un clic (por ejemplo, el de «Cerrar» dentro del clic de cada carta): cada clic añade otro listener y la acción se repite.
+- Limpiar el modal solo en el botón «Cerrar»: al cerrar con Escape no se ejecuta esa limpieza. Usa el evento `close`.
