@@ -6,7 +6,8 @@
 - Sesión 3 (paginación): completada. Botones «anterior» y «siguiente» con `pagina` como estado, URL con `page` y `limit`, vaciado de `#cartas` antes de repintar, y ocultación de los botones con `hidden` según `totalPages`.
 - Trabajo extra completado: los campos de batalla (`card_type === "Battlefield"`) tienen que verse con el mismo tamaño que el resto de cartas. Se usa `position: relative` en `.imgDiv`, `aspect-ratio: 5 / 7`, y `.battlefieldImg` girada 90 grados con `position: absolute`. Comprobado en el navegador.
 - Sesión 4 en curso (casi completada): detalle de carta (`/api/cards/:id`) en un modal dentro de `index.html`. Ver registro abajo.
-- Autenticación con JWT (backend): completada. Login devuelve `{ token, user }`, tabla `sessions` y ruta de logout eliminadas. Frontend de login/registro pendiente.
+- Autenticación con JWT (backend): completada. Login devuelve `{ token, user }`, tabla `sessions` y ruta de logout eliminadas.
+- Login/registro (frontend): en curso, sesión 5. Decisiones tomadas y `users.js` eliminado; ver sección Registro. Pendiente de implementar `auth.js`, `login.js` y `register.js`.
 - Pendientes no bloqueantes:
   - Comprobar `respuesta.ok` en `cargarDetails` y `cargarCartas`.
   - Mostrar los dominios con `join(", ")` en el modal (ahora se ven separados por comas sin espacio).
@@ -72,6 +73,23 @@
 - `users.sql`: `DROP TABLE IF EXISTS sessions;` para quitarla también de la base de datos existente.
 - Pendiente del paso: el frontend de login y registro, y el middleware que proteja las rutas de colección (lo que se aplica con `Authorization: Bearer <token>`).
 
+### Login y registro – frontend (en curso, 04/11/2026)
+- Decisiones tomadas:
+  - El token se guarda en `localStorage`.
+  - No hay auto-login: tras registrarse, redirigir a `loginForm.html`.
+  - Reparto en tres archivos: `auth.js` (solo llamadas a la API, sin DOM), `register.js` y `login.js` (lógica de cada formulario, importan de `auth.js`).
+  - `users.js` eliminado. Su clase mezclaba datos guardados sin uso con métodos vacíos.
+- HTML hecho: `lang="es"` en las dos páginas; enlaces entre `loginForm.html` y `registerForm.html`; `id="username"` en el registro (antes `nombre`); `id="login"` y `id="register"` en los formularios; `<script type="module">` en cada página.
+- `index.html`: el botón «Login» tiene `id="toLogin"`. En `app.js` hay un listener que redirige a `loginForm.html`.
+- Pendiente:
+  - Crear `auth.js`.
+  - Crear `login.js` (el script de la página de login ya se carga, pero el archivo no existe).
+  - Corregir `register.js`: quitar el `import` de `users.js` y la llamada a `register(...)` (no es una función suelta).
+  - Añadir un `<p>` para mostrar errores en cada formulario.
+  - Corregir en `app.js` la redirección del botón «Login»: `window.location.href` sin paréntesis y con `"loginForm.html"` entre comillas.
+  - Las claves del JSON tienen que ser `username`, `email` y `password`, aunque el campo del HTML se llame `contraseña`.
+  - Actualizar `AGENTS.md`: sustituir la mención de `users.js`.
+
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
 - `async`/`await`: `await` espera el valor de la promesa, pero solo dentro de funciones `async` en un script clásico.
@@ -103,6 +121,11 @@
 - Un `dialog` abierto con `showModal()` se centra con su `margin: auto` por defecto. Un reset `* { margin: 0 }` lo desplaza.
 - Un `dialog` con `display: flex` pone sus hijos en fila. Para apilarlos, `flex-direction: column`.
 - `e.target` en un clic indica el elemento que se pulsó. Con un `dialog`, el `target` es el propio dialog si pulsas en el `::backdrop`.
+- `e.preventDefault()` en un `submit` evita que el navegador recargue la página con el envío normal del formulario.
+- `window.location.href = "pagina.html";` navega a otra página. Es una propiedad: se asigna con `=`, sin paréntesis.
+- Las rutas relativas (`loginForm.html`) se resuelven desde la página actual; las dos páginas de auth están en `frontend/`, así que funcionan sin `/`.
+- `localStorage.setItem(clave, valor)` guarda texto que persiste entre recargas. Solo guarda cadenas.
+- `import { funcion } from "./archivo.js";` solo funciona en scripts con `type="module"`.
 
 ## Errores frecuentes
 - Llamar a `pintarCartas()` antes de que llegue la respuesta: `cartas` es `undefined`.
@@ -115,6 +138,8 @@
 - Asignar `className` cuando quieres añadir una clase: reemplaza las anteriores; usa `classList.add`.
 - Esperar que `object-fit` o `transform` cambien el hueco que ocupa un elemento: no lo hacen.
 - Dejar valores de prueba en el código (`let pagina = 26;`).
+- Llamar a un método como si fuera una función suelta (`register(...)` en lugar de `user.register(...)` o una función exportada). Da `ReferenceError`.
+- Escribir `window.location.href(...)` con paréntesis, o `href = (loginForm.html)` sin comillas: la variable no existe y la redirección falla.
 - Escribir una clase en JavaScript con un nombre distinto al de la hoja de estilos (`battlefield_img` frente a `battlefieldImg`): la regla no se aplica y no hay error visible.
 - Quitar `await` de `fetch`: `respuesta.json` no existe porque `respuesta` es una promesa.
 - Poner `display` en `dialog` sin restringirlo a `[open]`: el modal se ve al cargar la página.

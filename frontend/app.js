@@ -113,4 +113,6 @@ document.getElementById("anterior").addEventListener("click",() => {
 document.getElementById("cerrarDetails").addEventListener("click", () =>{
     document.getElementById("details").close();
 });
-document.getElementById("details").addEventListener("close", borrarDetails);
+document.getElementById("toLogin").addEventListener("click", () =>{
+    window.location.href = "loginForm.html" ;
+});

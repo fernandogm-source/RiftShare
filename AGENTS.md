@@ -32,7 +32,6 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 ## Frontend
 - Mismo origen que la API: usar rutas relativas (`/api/...`). La cookie de sesión la envía el navegador; JS no la lee ni la gestiona.
 - Páginas: `index.html` (catálogo), `loginForm.html`, `registerForm.html`. `app.js` está vacío.
-- `users.js` es un módulo ES (usa `export`): cargarlo con `<script type="module">`.
 - Las imágenes `../RiftShare-cropped.svg` salen de `frontend/` y no resuelven al servir desde Express.
 - El formulario de registro tiene el campo `nombre`, pero la API espera `username`.
 

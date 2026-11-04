@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,18 +19,20 @@
                 <img src="RiftShare-cropped.svg" alt="RiftShare">
             </div>
             <h1>INICIAR SESIÓN</h1>
-            <form>
+            <form id="login">
                 <label for="email">Email</label><br>
-                <input type="email" id="email"><br>
+                <input type="email" id="loginEmail"><br>
                 <label for="contraseña">Contraseña</label><br>
-                <input type="password" id="contraseña">
+                <input type="password" id="loginPwd">
+                <p id="err-login"></p>
                 
                 <div id="enviar">
                     <button type="submit">INICIAR SESIÓN</button>
                 </div>
             </form>
-            <p class="login-link">No tengo una cuenta: <a href="#">Registrarse</a></p>
+            <p class="login-link">No tengo una cuenta: <a href="registerForm.html">Registrarse</a></p>
         </div>
     </main>
+    <script type="module" src="login.js"></script>
 </body>
 </html>
