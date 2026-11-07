@@ -1,6 +1,7 @@
 import { register } from "./auth.js";
 
 const registerForm = document.getElementById("register");
+const errGeneral = document.getElementById("err-register");
 
 registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -27,12 +28,17 @@ registerForm.addEventListener("submit", async (e) => {
                 elemento.textContent = detalle.message;
                 elemento.hidden = false;
             });
+        }else{
+            errGeneral.textContent = error.message;
+           errGeneral.hidden = false;
         }
     }
 });
 
 function limpiarErrores(){
     const errores = document.querySelectorAll(".err");
+
+    errGeneral.hidden = true;
 
     errores.forEach(element => {
         element.textContent = "";

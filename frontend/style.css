@@ -61,7 +61,7 @@ header {
 #loginRegisterbtn button:hover {
     color: #1A1A1A;
     background-color: #C5A86A;
-    border: #1A1A1A;
+    border: 2px solid #1A1A1A;
 }
 
 .logo-container {
@@ -141,6 +141,28 @@ header {
 }
 
 #logo{
+    cursor: pointer;
+}
+#menu{
+    height: 100%;
+    width: 80%;
+    padding-left: 10%;
+}
+#menu button{
+    height: 100%;
+    width: 150px;
+    color: #C5A86A;
+    background-color: #1A1A1A;
+    border-color: #C5A86A;
+    border-top: none;
+    border-bottom: none;
+    border-left: solid 2px #C5A86A;
+    border-right: solid 2px #C5A86A;
+    font-weight: bold;
+}
+#menu button:hover{
+    background-color: #C5A86A;
+    color:#1A1A1A;
     cursor: pointer;
 }
 

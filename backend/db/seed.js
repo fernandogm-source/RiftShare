@@ -98,8 +98,8 @@ async function seed() {
       }
     }
 
-    await client.query(collection);
     await client.query(users);
+    await client.query(collection);
 
     await client.query('COMMIT');
     console.log(

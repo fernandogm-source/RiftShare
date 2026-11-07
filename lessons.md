@@ -8,8 +8,8 @@
 - Sesión 4 en curso (casi completada): detalle de carta (`/api/cards/:id`) en un modal dentro de `index.html`. Ver registro abajo.
 - Autenticación con JWT (backend): completada. Login devuelve `{ token, user }`, tabla `sessions` y ruta de logout eliminadas.
 - Validación del backend con Zod: completada. Esquemas en `src/validation/`, middleware `validate` y errores 400 en español.
-- Login/registro (frontend): en curso, sesión 5. `auth.js` hecho (adjunta `details` al error). `register.js` en curso: falta el `catch` completo y el `<p>` de error general. `login.js` pendiente. Ver sección Registro.
-- Errores de validación por campo: backend devuelve `{ error, details: [{ field, message }] }` (completado). Frontend en curso.
+- Login/registro (frontend): completado, sesión 5 (07/11/2026). Registro y login muestran errores por campo y error general; el login guarda el token en `localStorage`. Comprobado en el navegador: el token se guarda en `localStorage` tras el login. Ver sección Registro.
+- Errores de validación por campo: backend devuelve `{ error, details: [{ field, message }] }` (completado). Frontend completado.
 - Pendientes no bloqueantes:
   - Comprobar `respuesta.ok` en `cargarDetails` y `cargarCartas`.
   - Mostrar los dominios con `join(", ")` en el modal (ahora se ven separados por comas sin espacio).
@@ -73,7 +73,7 @@
 - Login: devuelve `{ token, user: { id, username, email, role } }`. El `sub` del token es el id del usuario (como texto) y `JWT_SECRET` se lee del `.env`.
 - Logout eliminado: sin estado en el servidor, el cliente borra el token. Nadie lo usaba en el frontend.
 - `users.sql`: `DROP TABLE IF EXISTS sessions;` para quitarla también de la base de datos existente.
-- Pendiente del paso: el frontend de login y registro, y el middleware que proteja las rutas de colección (lo que se aplica con `Authorization: Bearer <token>`).
+- Resuelto: frontend de login y registro (sesión 5) y middleware que protege las rutas de colección (ver entrada de middleware más abajo).
 
 ### Login y registro – frontend (en curso, 04/11/2026)
 - Decisiones tomadas:
@@ -89,13 +89,27 @@
   - Limpieza de errores con `limpiarErrores()`: `querySelectorAll(".err")` + `forEach` (`textContent = ""`, `hidden = true`), llamada al principio del `submit`.
   - Backend: los errores de validación devuelven `details` con `field` y `message`.
   - Backend: el controlador de auth lee `contraseña`, igual que el esquema.
-- Pendiente:
-  - `register.js`: completar el `catch` (recorrer `error.details` con una tabla `field → <p>`, y mostrar `error.message` si no hay detalles).
-  - Crear el `<p>` de error general en `registerForm.html` (con clase `err`). Hoy `errRegister` apunta a un `id` que no existe.
-  - `login.js`: el archivo está casi vacío (solo el logo). Falta el `submit`.
-  - `loginForm.html`: `for` e `id` de email y contraseña no coinciden (`loginEmail`, `loginPwd`).
-  - Corregir en `app.js` la redirección del botón «Login» si sigue sin comillas o paréntesis (ya está bien).
-  - Actualizar `AGENTS.md`: sustituir la mención de `users.js` (ya hecho).
+- Completado (07/11/2026):
+  - `register.js`: el `catch` recorre `error.details` con la tabla `field → <p>`; si no hay `details`, muestra `error.message` en el `<p>` general (`err-register`). Comprobado con formulario vacío (400) y email duplicado (409).
+  - `registerForm.html`: `<p id="err-register" class="err" hidden>` antes de `#enviar`.
+  - `loginForm.html`: `for` e `id` coinciden (`email`, `contraseña`), y `<p id="err-login" class="err" hidden>` para el error general.
+  - `login.js`: `submit` con `login(email, contraseña)`, guarda `datos.token` en `localStorage` con la clave `"token"` y redirige a `index.html`. Errores por campo y general, igual que en el registro.
+  - `console.log(datos.token)` de depuración eliminado. Comprobado en el navegador que `localStorage.getItem("token")` devuelve un JWT.
+
+### Middleware de autenticación – backend (07/11/2026)
+- `src/middleware/auth.middleware.js` con `requireAuth`: lee `Authorization: Bearer <token>`, verifica con `jwt.verify` y deja `req.user = { id, username, role }`. Sin token o con token no válido/caducado responde 401.
+- Aplicado a todas las rutas de `collection.routes.js` con `router.use(requireAuth)`. Las rutas de cartas siguen públicas.
+- Comprobado con `curl`: sin token 401, token inválido 401, token válido 200.
+- Pendiente de diseño resuelto en el paso siguiente (colección por usuario).
+
+### Colección por usuario – backend (07/11/2026)
+- `collection_items` pasa a tener `user_id` (FK a `users`, con `ON DELETE CASCADE`) y clave primaria `(user_id, card_id)`.
+- `collection.sql` incluye una migración para tablas ya creadas: `ADD COLUMN IF NOT EXISTS`, borrado de filas sin dueño, `SET NOT NULL` y cambio de clave primaria. Es idempotente.
+- `seed.js` ejecuta `users.sql` antes que `collection.sql`, porque la FK necesita la tabla `users`.
+- El controlador filtra por `req.user.id` en listado, resumen, alta (`ON CONFLICT (user_id, card_id)`), edición y borrado.
+- Comprobado con un script: dos usuarios con la misma carta tienen copias independientes; el borrado y la edición de uno no afectan al otro; sin token 401.
+- Nuevo endpoint `GET /api/collection/quantities`: devuelve `{ card_id: cantidad }` del usuario en una sola petición, para pintar las cantidades en el catálogo. Comprobado: devuelve las cantidades, 401 sin token y `{}` tras borrar.
+  - `AGENTS.md`: ya no menciona `users.js`.
 
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
@@ -175,3 +189,9 @@
 - Los controladores ya no validan a mano: auth, cartas y colección usan datos validados.
 - `cards.query.js` dejó de validar y convertir números; ahora solo construye filtros y calcula el offset con datos ya validados.
 - Comprobado con `curl`: registro/login, filtros, paginación, detalle de carta y colección; los errores devuelven 400 con mensajes en español.
+
+### Sesión 5 – Login y registro en el frontend (completada, 07/11/2026)
+- Registro y login con el mismo patrón: `try`/`catch`, mapa `field → <p>` para los errores de `details` y `<p>` general para el resto.
+- El usuario escribió `catch` y `submit` de `register.js` y `login.js` a partir de pistas, y detectó errores de ids y de estado (`errGeneral` antes de existir en el HTML).
+- Token guardado en `localStorage` tras el login.
+- Cerrado: `console.log` de depuración eliminado y token comprobado en el navegador.

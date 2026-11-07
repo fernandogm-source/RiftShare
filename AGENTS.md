@@ -16,7 +16,7 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 
 ## Base de datos
 - Requiere `backend/.env` con `DATABASE_URL` y `JWT_SECRET` (plantilla en `.env.example`). No imprimir ni commitear `.env`.
-- `npm run seed` va en una transacción: ejecuta `db/schema.sql`, `db/collection.sql` y `db/users.sql`, y hace `ROLLBACK` si algo falla. Termina el proceso al acabar (no es el servidor).
+- `npm run seed` va en una transacción: ejecuta `db/schema.sql`, `db/users.sql` y `db/collection.sql` (en ese orden, porque la colección referencia a `users`), y hace `ROLLBACK` si algo falla. Termina el proceso al acabar (no es el servidor).
 - `schema.sql` hace DROP y recrea las tablas del catálogo (`sets`, `cards`, `domains`, `card_domains`, `tags`, `card_tags`). Un reseed borra cartas, no usuarios ni colección; las sesiones se eliminan (`users.sql` hace `DROP TABLE IF EXISTS sessions`).
 - `users.sql` y `collection.sql` usan `CREATE TABLE IF NOT EXISTS`, así que usuarios y colección sobreviven a un reseed.
 - `collection.sql` restaura la FK `collection_items.card_id → cards.id` que el DROP de `cards` elimina. Si cambias el esquema, respeta ese orden.
@@ -29,7 +29,8 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 - Listados: `{ data, pagination }`. `page` debe ser ≥ 1 y `limit` entero entre 1 y 100; fuera de rango responde 400.
 - Auth con JWT (`jsonwebtoken`, caducidad 1 h) firmado con `JWT_SECRET`. Login devuelve `{ token, user: { id, username, email, role } }`; registro y login esperan `username`, `email` y `contraseña` (clave JSON en español, igual que el formulario). Contraseñas con argon2.
 - No hay logout en el servidor: el cliente borra el token.
-- No hay middleware de autenticación: las rutas de colección no comprueban el token todavía.
+- Middleware `requireAuth` (`src/middleware/auth.middleware.js`): protege todas las rutas de `/api/collection` y deja `req.user` (`id`, `username`, `role`). Las rutas de cartas son públicas.
+- La colección es por usuario: `collection_items` tiene `user_id` y clave primaria `(user_id, card_id)`. Los controladores siempre filtran por `req.user.id`.
 
 ## Frontend
 - Mismo origen que la API: usar rutas relativas (`/api/...`). El token JWT se guarda en `localStorage`; no hay cookie de sesión.

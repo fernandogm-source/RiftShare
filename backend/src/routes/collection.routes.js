@@ -2,11 +2,13 @@ const { Router } = require('express');
 const {
   listCollection,
   getSummary,
+  getQuantities,
   addItem,
   updateItem,
   deleteItem,
 } = require('../controllers/collection.controller');
 const { validate } = require('../validation/validate');
+const { requireAuth } = require('../middleware/auth.middleware');
 const { cardListQuerySchema } = require('../validation/cards.schema');
 const {
   addItemSchema,
@@ -16,8 +18,11 @@ const {
 
 const router = Router();
 
+router.use(requireAuth);
+
 router.get('/', validate({ query: cardListQuerySchema }), listCollection);
 router.get('/summary', getSummary);
+router.get('/quantities', getQuantities);
 router.post('/', validate({ body: addItemSchema }), addItem);
 router.put(
   '/:cardId',
