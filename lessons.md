@@ -7,7 +7,9 @@
 - Trabajo extra completado: los campos de batalla (`card_type === "Battlefield"`) tienen que verse con el mismo tamaño que el resto de cartas. Se usa `position: relative` en `.imgDiv`, `aspect-ratio: 5 / 7`, y `.battlefieldImg` girada 90 grados con `position: absolute`. Comprobado en el navegador.
 - Sesión 4 en curso (casi completada): detalle de carta (`/api/cards/:id`) en un modal dentro de `index.html`. Ver registro abajo.
 - Autenticación con JWT (backend): completada. Login devuelve `{ token, user }`, tabla `sessions` y ruta de logout eliminadas.
-- Login/registro (frontend): en curso, sesión 5. Decisiones tomadas y `users.js` eliminado; ver sección Registro. Pendiente de implementar `auth.js`, `login.js` y `register.js`.
+- Validación del backend con Zod: completada. Esquemas en `src/validation/`, middleware `validate` y errores 400 en español.
+- Login/registro (frontend): en curso, sesión 5. `auth.js` hecho (adjunta `details` al error). `register.js` en curso: falta el `catch` completo y el `<p>` de error general. `login.js` pendiente. Ver sección Registro.
+- Errores de validación por campo: backend devuelve `{ error, details: [{ field, message }] }` (completado). Frontend en curso.
 - Pendientes no bloqueantes:
   - Comprobar `respuesta.ok` en `cargarDetails` y `cargarCartas`.
   - Mostrar los dominios con `join(", ")` en el modal (ahora se ven separados por comas sin espacio).
@@ -81,14 +83,19 @@
   - `users.js` eliminado. Su clase mezclaba datos guardados sin uso con métodos vacíos.
 - HTML hecho: `lang="es"` en las dos páginas; enlaces entre `loginForm.html` y `registerForm.html`; `id="username"` en el registro (antes `nombre`); `id="login"` y `id="register"` en los formularios; `<script type="module">` en cada página.
 - `index.html`: el botón «Login» tiene `id="toLogin"`. En `app.js` hay un listener que redirige a `loginForm.html`.
+- Hecho:
+  - `auth.js` con `register` y `login` exportados. Envían `username`, `email` y `contraseña`, y lanzan un `Error` con `details` si la API los devuelve.
+  - `register.js` importa `register`. La variable del formulario se llama `registerForm` para no tapar la función.
+  - Limpieza de errores con `limpiarErrores()`: `querySelectorAll(".err")` + `forEach` (`textContent = ""`, `hidden = true`), llamada al principio del `submit`.
+  - Backend: los errores de validación devuelven `details` con `field` y `message`.
+  - Backend: el controlador de auth lee `contraseña`, igual que el esquema.
 - Pendiente:
-  - Crear `auth.js`.
-  - Crear `login.js` (el script de la página de login ya se carga, pero el archivo no existe).
-  - Corregir `register.js`: quitar el `import` de `users.js` y la llamada a `register(...)` (no es una función suelta).
-  - Añadir un `<p>` para mostrar errores en cada formulario.
-  - Corregir en `app.js` la redirección del botón «Login»: `window.location.href` sin paréntesis y con `"loginForm.html"` entre comillas.
-  - Las claves del JSON tienen que ser `username`, `email` y `password`, aunque el campo del HTML se llame `contraseña`.
-  - Actualizar `AGENTS.md`: sustituir la mención de `users.js`.
+  - `register.js`: completar el `catch` (recorrer `error.details` con una tabla `field → <p>`, y mostrar `error.message` si no hay detalles).
+  - Crear el `<p>` de error general en `registerForm.html` (con clase `err`). Hoy `errRegister` apunta a un `id` que no existe.
+  - `login.js`: el archivo está casi vacío (solo el logo). Falta el `submit`.
+  - `loginForm.html`: `for` e `id` de email y contraseña no coinciden (`loginEmail`, `loginPwd`).
+  - Corregir en `app.js` la redirección del botón «Login» si sigue sin comillas o paréntesis (ya está bien).
+  - Actualizar `AGENTS.md`: sustituir la mención de `users.js` (ya hecho).
 
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
@@ -126,6 +133,12 @@
 - Las rutas relativas (`loginForm.html`) se resuelven desde la página actual; las dos páginas de auth están en `frontend/`, así que funcionan sin `/`.
 - `localStorage.setItem(clave, valor)` guarda texto que persiste entre recargas. Solo guarda cadenas.
 - `import { funcion } from "./archivo.js";` solo funciona en scripts con `type="module"`.
+- Un objeto puede tener propiedades nuevas en cualquier momento: `error.details = datos.details;` añade `details` a un `Error` ya creado.
+- Un objeto puede servir de tabla de correspondencia: `errores[detalle.field]` busca el `<p>` según el nombre que manda el backend. Con corchetes, porque la clave está en una variable.
+- `querySelectorAll(".err")` usa selectores CSS (con punto para clases) y devuelve una lista con `forEach`.
+- Zod define esquemas (`z.object`, `z.string().min(...)`, `z.coerce.number()`) y valida con `parse` (lanza `ZodError`) o `safeParse` (devuelve `{ success, data/error }`).
+- `z.coerce.number()` convierte los strings de la query (`"2"` → `2`); `.int()` y `.min()`/`.max()` validan el resultado.
+- En Express 5 `req.query` es un getter de solo lectura: no se puede reasignar. El middleware guarda la query validada en `req.validatedQuery`.
 
 ## Errores frecuentes
 - Llamar a `pintarCartas()` antes de que llegue la respuesta: `cartas` es `undefined`.
@@ -133,6 +146,9 @@
 - Usar `datos` cuando lo que necesitas es `datos.data`.
 - Pasar un objeto `{ ... }` a `addEventListener` en lugar de una función.
 - Escribir `getElementByClassName` en lugar de `getElementsByClassName`.
+- Llamar `querySelectorAll("err")` en vez de `".err"`: busca etiquetas `<err>`, no la clase.
+- Dar a una variable el mismo nombre que una función importada (`const register = document.getElementById(...)` con `import { register }`): la función queda tapada y da `register is not a function`.
+- Escribir `error.details.forEach` sin comprobar antes que `details` existe: un 409 o un fallo de red no lo traen.
 - Usar `setAttribute("disabled", "false")` para reactivar un botón: el atributo sigue presente.
 - Mezclar columnas fijas con `auto-fill` en `grid-template-columns`: las cartas quedan de anchos distintos.
 - Asignar `className` cuando quieres añadir una clase: reemplaza las anteriores; usa `classList.add`.
@@ -146,3 +162,16 @@
 - No vaciar el contenido del modal antes de pintar otra carta: se ven datos de la anterior o se acumulan.
 - Registrar un listener dentro de un clic (por ejemplo, el de «Cerrar» dentro del clic de cada carta): cada clic añade otro listener y la acción se repite.
 - Limpiar el modal solo en el botón «Cerrar»: al cerrar con Escape no se ejecuta esa limpieza. Usa el evento `close`.
+- Intentar reasignar `req.query` en Express 5: es un getter de solo lectura; usa `req.validatedQuery` o el valor devuelto por `parse`.
+- Validar con Zod pero seguir usando el dato original: hay que usar el resultado de `parse` (ya convertido y transformado), no `req.body`/`req.query` sin validar.
+
+### Documentación – AGENTS.md actualizado (07/11/2026)
+- Se corrigieron las secciones desactualizadas: auth con JWT en lugar de cookie de sesión, token en `localStorage`, `app.js` ya no está vacío, SVG movido a `frontend/`, campo `username` en el registro y sesiones eliminadas en cada reseed.
+- Se añadió `JWT_SECRET` como variable requerida en `backend/.env` y se documentó el reparto previsto de `auth.js`, `login.js` y `register.js`.
+
+### Validación con Zod – backend (07/11/2026)
+- Se instaló `zod` y se creó `src/validation/` con esquemas para auth, cartas y colección, más el middleware `validate`.
+- El middleware guarda la query validada en `req.validatedQuery` porque en Express 5 `req.query` es un getter de solo lectura.
+- Los controladores ya no validan a mano: auth, cartas y colección usan datos validados.
+- `cards.query.js` dejó de validar y convertir números; ahora solo construye filtros y calcula el offset con datos ya validados.
+- Comprobado con `curl`: registro/login, filtros, paginación, detalle de carta y colección; los errores devuelven 400 con mensajes en español.

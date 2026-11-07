@@ -1,6 +1,8 @@
 const path = require('path');
 const express = require('express');
+const { ZodError } = require('zod');
 const apiRoutes = require('./routes');
+const { zodErrorBody } = require('./validation/validate');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,8 +22,8 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ error: 'El cuerpo de la petición no es JSON válido' });
   }
 
-  if (err.isValidation) {
-    return res.status(400).json({ error: err.message });
+  if (err instanceof ZodError) {
+    return res.status(400).json(zodErrorBody(err));
   }
 
   console.error(err);

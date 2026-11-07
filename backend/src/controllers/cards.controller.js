@@ -7,8 +7,9 @@ const {
 } = require('../queries/cards.query');
 
 async function listCards(req, res) {
-  const { where, values } = buildCardFilters(req.query);
-  const { page, limit, offset } = getPagination(req.query);
+  const query = req.validatedQuery;
+  const { where, values } = buildCardFilters(query);
+  const { page, limit, offset } = getPagination(query);
 
   const countResult = await pool.query(
     `SELECT COUNT(*)::int AS total FROM cards c ${where}`,
@@ -28,7 +29,8 @@ async function listCards(req, res) {
 }
 
 async function getCard(req, res) {
-  const { rows } = await pool.query(`${cardSelect()} WHERE c.id = $1`, [req.params.id]);
+  const { id } = req.validatedParams;
+  const { rows } = await pool.query(`${cardSelect()} WHERE c.id = $1`, [id]);
 
   if (rows.length === 0) {
     return res.status(404).json({ error: 'Carta no encontrada' });

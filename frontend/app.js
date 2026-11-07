@@ -2,37 +2,56 @@ let cartas;
 let pagina = 1;
 
 async function cargarCartas(page,limit = 12) {
-    const respuesta = await fetch("/api/cards?page="+page+"&limit="+limit);
-    const datos = await respuesta.json();
-    cartas = datos.data;
-    let totalPages = datos.pagination.totalPages;
-    if(page <= 1 || page === 0){
-        document.getElementById("anterior").setAttribute("hidden","");
-    }else{
-        document.getElementById("anterior").removeAttribute("hidden");
-    }
-    if(page >= totalPages || page === 0){
-        document.getElementById("siguiente").setAttribute("hidden","");
-    }else{
-        document.getElementById("siguiente").removeAttribute("hidden");
-    }
+    try {
+        const respuesta = await fetch("/api/cards?page="+page+"&limit="+limit);
+        if(!respuesta.ok){throw new Error("Error al cargar las cartas");
+        }
+        document.getElementById("err-cartas").setAttribute("hidden","");
+        document.getElementById("paginacion").removeAttribute("hidden");
+        const datos = await respuesta.json();
+        cartas = datos.data;
+        let totalPages = datos.pagination.totalPages;
+        if(page <= 1 || page === 0){
+            document.getElementById("anterior").setAttribute("hidden","");
+        }else{
+            document.getElementById("anterior").removeAttribute("hidden");
+        }
+        if(page >= totalPages || page === 0){
+            document.getElementById("siguiente").setAttribute("hidden","");
+        }else{
+            document.getElementById("siguiente").removeAttribute("hidden");
+        }
     pintarCartas();
+    } catch (error) {
+        vaciarCartas();
+        document.getElementById("err-cartas").textContent = error.message;
+        document.getElementById("err-cartas").removeAttribute("hidden");
+        document.getElementById("paginacion").setAttribute("hidden","");
+    }
+    
 };
 
 async function cargarDetails(cardId) {
-    const respuesta = await fetch("/api/cards/"+cardId);
-    let carta = await respuesta.json();
-    pintarDetails(carta);
+    try {
+        const respuesta = await fetch("/api/cards/"+cardId);
+        if(!respuesta.ok){throw new Error("Error al cargar los detalles");};
+        let carta = await respuesta.json();
+        pintarDetails(carta);
+    } catch (error) {
+        
+    }
+    
 };
 
 function pintarDetails(card){
+    borrarDetails();
     const img = document.createElement("img");
     img.src = card.image_url;
     img.alt = card.name;
 
     document.getElementById("detailsCarta").textContent = card.name;
     document.getElementById("detailsTipo").textContent = card.card_type;
-    document.getElementById("detailsDominio").textContent = card.domains;
+    document.getElementById("detailsDominio").textContent = card.domains.join(" , ");
     document.getElementById("detailsRareza").textContent = card.rarity;
     document.getElementById("detailsTexto").textContent = card.accessibility_text;
 
@@ -113,6 +132,10 @@ document.getElementById("anterior").addEventListener("click",() => {
 document.getElementById("cerrarDetails").addEventListener("click", () =>{
     document.getElementById("details").close();
 });
+document.getElementById("details").addEventListener("close",borrarDetails);
 document.getElementById("toLogin").addEventListener("click", () =>{
     window.location.href = "loginForm.html" ;
+});
+document.getElementById("logo").addEventListener("click", () =>{
+    window.location.href = "index.html" ;
 });

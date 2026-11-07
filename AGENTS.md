@@ -15,25 +15,30 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 - No hay tests, lint ni typecheck configurados. No inventes `npm test`.
 
 ## Base de datos
-- Requiere `backend/.env` con `DATABASE_URL` (plantilla en `.env.example`). No imprimir ni commitear `.env`.
+- Requiere `backend/.env` con `DATABASE_URL` y `JWT_SECRET` (plantilla en `.env.example`). No imprimir ni commitear `.env`.
 - `npm run seed` va en una transacción: ejecuta `db/schema.sql`, `db/collection.sql` y `db/users.sql`, y hace `ROLLBACK` si algo falla. Termina el proceso al acabar (no es el servidor).
-- `schema.sql` hace DROP y recrea las tablas del catálogo (`sets`, `cards`, `domains`, `card_domains`, `tags`, `card_tags`). Un reseed borra cartas, no usuarios.
-- `users.sql` y `collection.sql` usan `CREATE TABLE IF NOT EXISTS`, así que usuarios, sesiones y colección sobreviven a un reseed.
+- `schema.sql` hace DROP y recrea las tablas del catálogo (`sets`, `cards`, `domains`, `card_domains`, `tags`, `card_tags`). Un reseed borra cartas, no usuarios ni colección; las sesiones se eliminan (`users.sql` hace `DROP TABLE IF EXISTS sessions`).
+- `users.sql` y `collection.sql` usan `CREATE TABLE IF NOT EXISTS`, así que usuarios y colección sobreviven a un reseed.
 - `collection.sql` restaura la FK `collection_items.card_id → cards.id` que el DROP de `cards` elimina. Si cambias el esquema, respeta ese orden.
 
 ## Backend
 - `app.js` monta `/api` antes que los estáticos. Un `/api/*` desconocido devuelve 404 JSON.
 - Flujo: `src/routes/*.routes.js` → `src/controllers/` → SQL con el `pool` de `src/db.js`. Filtros y paginación de cartas en `src/queries/cards.query.js`.
-- Errores: un error con `isValidation = true` responde 400; cualquier otro, 500 genérico. Express 5 propaga los errores de handlers async.
-- Listados: `{ data, pagination }`. `limit` máximo 100.
-- Auth: login inserta en `sessions` y envía la cookie `session` (HttpOnly, SameSite=Lax, 1 h). Contraseñas con argon2. Registro espera `username`, `email` y `password`.
-- No hay middleware de autenticación: las rutas de colección no comprueban la sesión todavía.
+- Validación con Zod en `src/validation/`: esquemas por dominio y middleware `validate`. Valida body, query y params antes del controlador; los errores responden 400 con mensajes en español.
+- Errores: `ZodError` responde 400; cualquier otro error, 500 genérico. Express 5 propaga los errores de handlers async.
+- Listados: `{ data, pagination }`. `page` debe ser ≥ 1 y `limit` entero entre 1 y 100; fuera de rango responde 400.
+- Auth con JWT (`jsonwebtoken`, caducidad 1 h) firmado con `JWT_SECRET`. Login devuelve `{ token, user: { id, username, email, role } }`; registro y login esperan `username`, `email` y `contraseña` (clave JSON en español, igual que el formulario). Contraseñas con argon2.
+- No hay logout en el servidor: el cliente borra el token.
+- No hay middleware de autenticación: las rutas de colección no comprueban el token todavía.
 
 ## Frontend
-- Mismo origen que la API: usar rutas relativas (`/api/...`). La cookie de sesión la envía el navegador; JS no la lee ni la gestiona.
-- Páginas: `index.html` (catálogo), `loginForm.html`, `registerForm.html`. `app.js` está vacío.
-- Las imágenes `../RiftShare-cropped.svg` salen de `frontend/` y no resuelven al servir desde Express.
-- El formulario de registro tiene el campo `nombre`, pero la API espera `username`.
+- Mismo origen que la API: usar rutas relativas (`/api/...`). El token JWT se guarda en `localStorage`; no hay cookie de sesión.
+- Reparto para auth: `auth.js` (llamadas a la API, sin DOM), `login.js` y `register.js` (lógica de cada formulario, importan de `auth.js`).
+- `auth.js` lanza un `Error` con `message` = `datos.error` y, si la API lo envía, `details` (array de `{ field, message }`) para pintar cada error bajo su campo.
+- Páginas: `index.html` (catálogo), `loginForm.html`, `registerForm.html`. `app.js` contiene la lógica del catálogo, la paginación y el modal de detalle.
+- El SVG del logo está en `frontend/`; usar rutas relativas sin `../`.
+- El formulario de registro usa `username` en el HTML; la API espera `username`, `email` y `contraseña`.
+- La validación de formularios es solo la del backend (Zod). No usar atributos de validación HTML (`required`, `type="email"` sin `novalidate`) para no bloquear el envío.
 
 ## Inicio de sesión
 - Antes de responder, lee `lessons.md` (en la raíz). Contiene lo que el usuario ya ha visto y practicado, y el punto en el que se quedó.

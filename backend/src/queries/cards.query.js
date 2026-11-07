@@ -1,4 +1,3 @@
-const MAX_LIMIT = 100;
 const NUMERIC_FILTERS = ['might', 'energy', 'power'];
 
 function cardSelect(extraColumns = '', extraJoin = '') {
@@ -21,19 +20,6 @@ function cardSelect(extraColumns = '', extraJoin = '') {
     JOIN sets s ON s.set_id = c.set_id
     ${extraJoin}
   `;
-}
-
-function validationError(message) {
-  const error = new Error(message);
-  error.isValidation = true;
-  return error;
-}
-
-function parseIntegerParam(value, name) {
-  if (typeof value !== 'string' || !/^-?\d+$/.test(value)) {
-    throw validationError(`${name} debe ser un número entero`);
-  }
-  return Number(value);
 }
 
 function buildCardFilters(query) {
@@ -64,14 +50,9 @@ function buildCardFilters(query) {
   for (const column of NUMERIC_FILTERS) {
     const min = query[`${column}_min`];
     const max = query[`${column}_max`];
-    const minValue = min === undefined ? undefined : parseIntegerParam(min, `${column}_min`);
-    const maxValue = max === undefined ? undefined : parseIntegerParam(max, `${column}_max`);
 
-    if (minValue !== undefined && maxValue !== undefined && minValue > maxValue) {
-      throw validationError(`${column}_min no puede ser mayor que ${column}_max`);
-    }
-    if (minValue !== undefined) addFilter(`c.${column} >= $?`, minValue);
-    if (maxValue !== undefined) addFilter(`c.${column} <= $?`, maxValue);
+    if (min !== undefined) addFilter(`c.${column} >= $?`, min);
+    if (max !== undefined) addFilter(`c.${column} <= $?`, max);
   }
 
   return {
@@ -81,8 +62,7 @@ function buildCardFilters(query) {
 }
 
 function getPagination(query) {
-  const page = Math.max(parseInt(query.page, 10) || 1, 1);
-  const limit = Math.min(Math.max(parseInt(query.limit, 10) || 20, 1), MAX_LIMIT);
+  const { page, limit } = query;
   return { page, limit, offset: (page - 1) * limit };
 }
 

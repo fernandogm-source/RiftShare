@@ -5,18 +5,15 @@ const {
   getPagination,
   paginationInfo,
 } = require('../queries/cards.query');
+const { MAX_QUANTITY } = require('../validation/collection.schema');
 
-const MAX_QUANTITY = 99;
 const COLLECTION_COLUMNS = 'ci.quantity, ci.added_on,';
 const COLLECTION_JOIN = 'JOIN collection_items ci ON ci.card_id = c.id';
 
-function isValidQuantity(value) {
-  return Number.isInteger(value) && value >= 1 && value <= MAX_QUANTITY;
-}
-
 async function listCollection(req, res) {
-  const { where, values } = buildCardFilters(req.query);
-  const { page, limit, offset } = getPagination(req.query);
+  const query = req.validatedQuery;
+  const { where, values } = buildCardFilters(query);
+  const { page, limit, offset } = getPagination(query);
 
   const countResult = await pool.query(
     `SELECT COUNT(*)::int AS total
@@ -56,15 +53,7 @@ async function getSummary(req, res) {
 }
 
 async function addItem(req, res) {
-  const body = req.body ?? {};
-  const cardId = body.card_id;
-  const quantity = body.quantity === undefined ? 1 : body.quantity;
-
-  if (typeof cardId !== 'string' || !isValidQuantity(quantity)) {
-    return res.status(400).json({
-      error: `Datos no válidos: card_id (texto) y quantity (entero de 1 a ${MAX_QUANTITY})`,
-    });
-  }
+  const { card_id: cardId, quantity } = req.body;
 
   const card = await pool.query('SELECT id FROM cards WHERE id = $1', [cardId]);
   if (card.rowCount === 0) {
@@ -84,20 +73,15 @@ async function addItem(req, res) {
 }
 
 async function updateItem(req, res) {
-  const quantity = (req.body ?? {}).quantity;
-
-  if (!isValidQuantity(quantity)) {
-    return res.status(400).json({
-      error: `Datos no válidos: quantity debe ser un entero de 1 a ${MAX_QUANTITY}`,
-    });
-  }
+  const { quantity } = req.body;
+  const { cardId } = req.validatedParams;
 
   const { rows } = await pool.query(
     `UPDATE collection_items
      SET quantity = $2
      WHERE card_id = $1
      RETURNING card_id, quantity, added_on`,
-    [req.params.cardId, quantity]
+    [cardId, quantity]
   );
 
   if (rows.length === 0) {
@@ -108,9 +92,11 @@ async function updateItem(req, res) {
 }
 
 async function deleteItem(req, res) {
+  const { cardId } = req.validatedParams;
+
   const { rowCount } = await pool.query(
     'DELETE FROM collection_items WHERE card_id = $1',
-    [req.params.cardId]
+    [cardId]
   );
 
   if (rowCount === 0) {

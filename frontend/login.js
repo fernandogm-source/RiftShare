@@ -1,0 +1,5 @@
+import { login } from "./auth.js";
+
+document.getElementById("logo").addEventListener("click", () =>{
+    window.location.href = "index.html" ;
+});

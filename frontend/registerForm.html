@@ -22,11 +22,13 @@
             <form id="register">
                 <label for="username">Nombre de Usuario</label><br>
                 <input type="text" id="username"><br>
+                <p id="err-register-username" class="err" hidden></p>
                 <label for="email">Email</label><br>
-                <input type="email" id="email"><br>
+                <input type="text" id="email"><br>
+                <p id="err-register-email" class="err" hidden></p>
                 <label for="contraseña">Contraseña</label><br>
                 <input type="password" id="contraseña">
-                <p id="err-register"></p>
+                <p id="err-register-password" class="err" hidden></p>
                 
                 <div id="enviar">
                     <button type="submit">REGISTRARSE</button>
