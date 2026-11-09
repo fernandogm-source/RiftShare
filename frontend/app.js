@@ -1,17 +1,14 @@
+import { actualizarCabecera } from "./header.js";
+import { iniciarPaginacion, pintarPaginacion, paginaActual } from "./pagination.js";
+
 let cartas;
-let pagina = 1;
 
-const jwtStorage = localStorage.getItem("token");
-const userStorage = localStorage.getItem("user");
-
-if(jwtStorage !== null && userStorage !== null){
-    document.getElementById("menu").hidden = false;
-    document.getElementById("headerUsername").hidden = false;
-    document.getElementById("toLogout").hidden = false;
-    document.getElementById("toLogin").hidden = true;
-    
-    document.getElementById("headerUsername").textContent = userStorage;
-}
+actualizarCabecera();
+iniciarPaginacion((nuevaPagina) => {
+    vaciarCartas();
+    cargarCartas(nuevaPagina);
+});
+cargarCartas(paginaActual());
 
 async function cargarCartas(page,limit = 12) {
     try {
@@ -19,26 +16,18 @@ async function cargarCartas(page,limit = 12) {
         if(!respuesta.ok){throw new Error("Error al cargar las cartas");
         }
         document.getElementById("err-cartas").setAttribute("hidden","");
-        document.getElementById("paginacion").removeAttribute("hidden");
         const datos = await respuesta.json();
         cartas = datos.data;
         let totalPages = datos.pagination.totalPages;
-        if(page <= 1 || page === 0){
-            document.getElementById("anterior").setAttribute("hidden","");
-        }else{
-            document.getElementById("anterior").removeAttribute("hidden");
-        }
-        if(page >= totalPages || page === 0){
-            document.getElementById("siguiente").setAttribute("hidden","");
-        }else{
-            document.getElementById("siguiente").removeAttribute("hidden");
-        }
-    pintarCartas();
+        
+        pintarPaginacion(totalPages);
+
+        pintarCartas();
     } catch (error) {
         vaciarCartas();
         document.getElementById("err-cartas").textContent = error.message;
-        document.getElementById("err-cartas").removeAttribute("hidden");
-        document.getElementById("paginacion").setAttribute("hidden","");
+        document.getElementById("err-cartas").hidden = false;
+        document.getElementById("paginacion").hidden = true;
     }
     
 };
@@ -63,7 +52,7 @@ function pintarDetails(card){
 
     document.getElementById("detailsCarta").textContent = card.name;
     document.getElementById("detailsTipo").textContent = card.card_type;
-    document.getElementById("detailsDominio").textContent = card.domains.join(" , ");
+    document.getElementById("detailsDominio").textContent = card.domains.join(", ");
     document.getElementById("detailsRareza").textContent = card.rarity;
     document.getElementById("detailsTexto").textContent = card.accessibility_text;
 
@@ -81,8 +70,6 @@ function borrarDetails(){
     document.getElementById("detailsRareza").textContent = "";
     document.getElementById("detailsTexto").textContent = "";
 }
-
-cargarCartas(pagina);
 
 function pintarCartas(){
     cartas.forEach(element => {
@@ -128,31 +115,8 @@ function vaciarCartas(){
     }
 };
 
-document.getElementById("siguiente").addEventListener("click",() => {
-    vaciarCartas();
-    pagina = pagina + 1;
-    cargarCartas(pagina);
-});
-
-document.getElementById("anterior").addEventListener("click",() => {
-    if (pagina>1) {
-        vaciarCartas();
-        pagina = pagina - 1;
-        cargarCartas(pagina);
-    }
-});
 document.getElementById("cerrarDetails").addEventListener("click", () =>{
     document.getElementById("details").close();
 });
+
 document.getElementById("details").addEventListener("close",borrarDetails);
-document.getElementById("toLogin").addEventListener("click", () =>{
-    window.location.href = "loginForm.html" ;
-});
-document.getElementById("logo").addEventListener("click", () =>{
-    window.location.href = "index.html" ;
-});
-document.getElementById("toLogout").addEventListener("click",() =>{
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "index.html" ;
-})

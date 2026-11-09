@@ -36,7 +36,9 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 - Mismo origen que la API: usar rutas relativas (`/api/...`). El token JWT se guarda en `localStorage`; no hay cookie de sesión.
 - Reparto para auth: `auth.js` (llamadas a la API, sin DOM), `login.js` y `register.js` (lógica de cada formulario, importan de `auth.js`).
 - `auth.js` lanza un `Error` con `message` = `datos.error` y, si la API lo envía, `details` (array de `{ field, message }`) para pintar cada error bajo su campo.
-- Páginas: `index.html` (catálogo), `loginForm.html`, `registerForm.html`. `app.js` contiene la lógica del catálogo, la paginación y el modal de detalle.
+- Páginas: `index.html` (catálogo), `loginForm.html`, `registerForm.html`, `collection.html` (mi colección). `app.js` contiene la lógica del catálogo y el modal de detalle.
+- Módulos compartidos: `header.js` (`actualizarCabecera()`: muestra u oculta los botones de sesión y registra sus listeners) y `pagination.js` (`iniciarPaginacion(alCambiarPagina)`, `pintarPaginacion(total)` y `paginaActual()`: guarda la página actual y registra los botones «anterior» y «siguiente»). Cada página los importa; no se comparten variables entre archivos, solo funciones exportadas.
+- Convención de nombres para la colección: `collectionAPI.js` (llamadas a la API, sin DOM, como `auth.js`) y `collectionDOM.js` (script de `collection.html`: pinta y escucha eventos, sin `fetch` directo).
 - El SVG del logo está en `frontend/`; usar rutas relativas sin `../`.
 - El formulario de registro usa `username` en el HTML; la API espera `username`, `email` y `contraseña`.
 - La validación de formularios es solo la del backend (Zod). No usar atributos de validación HTML (`required`, `type="email"` sin `novalidate`) para no bloquear el envío.

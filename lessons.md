@@ -111,6 +111,16 @@
 - Nuevo endpoint `GET /api/collection/quantities`: devuelve `{ card_id: cantidad }` del usuario en una sola petición, para pintar las cantidades en el catálogo. Comprobado: devuelve las cantidades, 401 sin token y `{}` tras borrar.
   - `AGENTS.md`: ya no menciona `users.js`.
 
+### Módulos compartidos y paginación (09/11/2026)
+- Cabecera en `header.js`: `actualizarCabecera()` lee `token` y `user` dentro de la función (no al importar), muestra u oculta los botones y registra los listeners de `#toLogin`, `#logo` y `#toLogout`. `app.js` la importa y la llama. Pendiente: el listener de `#coleccion`.
+- Paginación en `pagination.js` (opción 3): el módulo guarda `pagina` y `totalPaginas`, y expone `iniciarPaginacion(alCambiarPagina)`, `pintarPaginacion(total)` y `paginaActual()`. `app.js` pasa un callback que vacía las cartas y llama a `cargarCartas(nuevaPagina)`.
+- Conceptos practicados: `export`/`import` entre archivos, función como parámetro (callback), `hidden` con valores booleanos (`hidden = pagina === 1`).
+- Errores encontrados y corregidos: importar `Paginacion` después de renombrar la función a `pintarPaginacion`; dos `import` del mismo nombre en `app.js` (error de identificador duplicado); usar `page` sin recibirlo; llamar a la firma antigua `pintarPaginacion(page, totalPages)`; `iniciarPaginacion` sin llamar, que deja los botones sin efecto.
+- Pendiente de decidir: qué hacer si falla la carga después de cambiar de página, y bloquear los clics mientras se carga.
+- Comprobado en el navegador: la paginación funciona con el módulo `pagination.js`.
+- Pendiente de implementar: `collectionDOM.js` (vacío) y `collection.html`, que todavía carga `app.js` en lugar de su propio script.
+- Pendientes menores: `cargarDetails` con `catch` vacío, constante `CARTAS_POR_PAGINA` en lugar de `limit = 12`, y el mismo `hidden` en `pintarPaginacion` para todas las líneas.
+
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
 - `async`/`await`: `await` espera el valor de la promesa, pero solo dentro de funciones `async` en un script clásico.
@@ -189,6 +199,12 @@
 - Los controladores ya no validan a mano: auth, cartas y colección usan datos validados.
 - `cards.query.js` dejó de validar y convertir números; ahora solo construye filtros y calcula el offset con datos ya validados.
 - Comprobado con `curl`: registro/login, filtros, paginación, detalle de carta y colección; los errores devuelven 400 con mensajes en español.
+
+### Decisiones de frontend – colección (07/11/2026)
+- Se descartó el refactor de la app (`auth.js` → `authApi.js`, `app.js` dividido en módulos) y se volvió al commit `3569646` con `git reset --hard`. No había trabajo sin commitear fuera del refactor.
+- Nombres para la colección: `collection.html`, `collectionAPI.js` (solo API) y `collectionDOM.js` (página, sin `fetch` directo).
+- Pendiente, en un paso aparte: decidir si los archivos existentes (`auth.js`, `login.js`, `register.js`) se renombran al mismo patrón.
+- Pendiente: decidir cómo se pinta la cabecera en `collection.html` (copia o módulo común).
 
 ### Sesión 5 – Login y registro en el frontend (completada, 07/11/2026)
 - Registro y login con el mismo patrón: `try`/`catch`, mapa `field → <p>` para los errores de `details` y `<p>` general para el resto.

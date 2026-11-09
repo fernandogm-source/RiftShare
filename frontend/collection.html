@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiftShare</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div id="logo">
+            <img src="RiftShare-cropped.svg" alt="RiftShare">
+        </div>
+        <div id="menu" hidden>
+            <button id="coleccion">MI COLECCIÓN</button>
+        </div>
+        <div id="loginRegisterbtn">
+            <button id="toLogin">LogIn</button>
+            <p id="headerUsername" hidden></p>
+            <button id="toLogout" hidden>LogOut</button>
+        </div>
+    </header>
+    <main class="main-index">
+        <h1>Mi colección</h1>
+        <p id="err-cartas" class="err" hidden></p>
+        <div id="cartas"></div>
+        <div id="paginacion">
+            <button id="anterior">⭠</button>
+            <button id="siguiente">⭢</button>
+        </div>
+        <dialog id="details">
+            <div id="imgDetails"></div>
+            <div id="infoDetails">
+                <p class="etiquetaDetails">Carta:</p>
+                <p id="detailsCarta"></p>
+                <p class="etiquetaDetails">Tipo:</p>
+                <p id="detailsTipo"></p>
+                <p class="etiquetaDetails">Dominio:</p>
+                <p id="detailsDominio"></p>
+                <p class="etiquetaDetails">Rareza:</p>
+                <p id="detailsRareza"></p>
+                <p class="etiquetaDetails">Texto:</p>
+                <p id="detailsTexto"></p>
+            </div>
+            <button id="cerrarDetails">Cerrar</button>
+        </dialog>
+    </main>
+    <footer></footer>
+    <script src="app.js" type="module"></script>
+</body>
+</html>
