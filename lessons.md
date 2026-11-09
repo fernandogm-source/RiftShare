@@ -121,6 +121,19 @@
 - Pendiente de implementar: `collectionDOM.js` (vacío) y `collection.html`, que todavía carga `app.js` en lugar de su propio script.
 - Pendientes menores: `cargarDetails` con `catch` vacío, constante `CARTAS_POR_PAGINA` en lugar de `limit = 12`, y el mismo `hidden` en `pintarPaginacion` para todas las líneas.
 
+### Decisión de frontend – colección en un solo archivo (09/11/2026)
+- Se descarta la separación `collectionAPI.js` / `collectionDOM.js`. La colección usa un único `collection.js`, que hace las llamadas a la API y pinta el DOM.
+- `collectionAPI.js` y `collectionDOM.js` eliminados. `collection.html` carga `collection.js`.
+- `AGENTS.md` actualizado con la nueva convención.
+- Pendiente en `collection.js`: `cargarDetails` (ya importado), `añadirCarta` sin usar, redirección a `loginForm.html` si no hay token, y `limit = 12` pendiente de constante.
+
+### Reorganización de carpetas del frontend (09/11/2026)
+- Estructura: `index.html`, `app.js`, `cards.js` y `style.css` en la raíz; `Auth/` (login y registro), `Collection/` (colección), `utils/` (`header.js`, `pagination.js`, `details.js`) e `img/` (logo y favicon).
+- Imports corregidos a `./utils/...` en `app.js` y `cards.js`, y a `../utils/...` en `Collection/collection.js`. `collection.js` ahora importa y llama a `iniciarDetails()` y `cargarDetails`.
+- Rutas absolutas desde la raíz de `frontend/` (`/style.css`, `/img/RiftShare-cropped.svg`, `/Auth/loginForm.html`, `/index.html`), para que funcionen desde cualquier carpeta. `AGENTS.md` actualizado.
+- Conceptos practicados: rutas relativas frente a absolutas y cómo cambian al mover archivos entre carpetas.
+- Pendiente: comprobar en el navegador las cuatro páginas tras el cambio.
+
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
 - `async`/`await`: `await` espera el valor de la promesa, pero solo dentro de funciones `async` en un script clásico.

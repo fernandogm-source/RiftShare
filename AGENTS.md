@@ -38,8 +38,9 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 - `auth.js` lanza un `Error` con `message` = `datos.error` y, si la API lo envía, `details` (array de `{ field, message }`) para pintar cada error bajo su campo.
 - Páginas: `index.html` (catálogo), `loginForm.html`, `registerForm.html`, `collection.html` (mi colección). `app.js` contiene la lógica del catálogo y el modal de detalle.
 - Módulos compartidos: `header.js` (`actualizarCabecera()`: muestra u oculta los botones de sesión y registra sus listeners) y `pagination.js` (`iniciarPaginacion(alCambiarPagina)`, `pintarPaginacion(total)` y `paginaActual()`: guarda la página actual y registra los botones «anterior» y «siguiente»). Cada página los importa; no se comparten variables entre archivos, solo funciones exportadas.
-- Convención de nombres para la colección: `collectionAPI.js` (llamadas a la API, sin DOM, como `auth.js`) y `collectionDOM.js` (script de `collection.html`: pinta y escucha eventos, sin `fetch` directo).
-- El SVG del logo está en `frontend/`; usar rutas relativas sin `../`.
+- La colección tiene un único script, `collection.js` (script de `collection.html`): hace las llamadas a la API, pinta y escucha eventos. No se separa en módulos de API y DOM.
+- Estructura: `index.html`, `app.js`, `cards.js` y `style.css` en la raíz de `frontend/`; `Auth/` (login y registro), `Collection/` (colección) y `utils/` (`header.js`, `pagination.js`, `details.js`); imágenes en `img/`.
+- Rutas de recursos y navegación absolutas desde la raíz de `frontend/` (`/style.css`, `/img/RiftShare-cropped.svg`, `/Auth/loginForm.html`), para que funcionen desde cualquier carpeta.
 - El formulario de registro usa `username` en el HTML; la API espera `username`, `email` y `contraseña`.
 - La validación de formularios es solo la del backend (Zod). No usar atributos de validación HTML (`required`, `type="email"` sin `novalidate`) para no bloquear el envío.
 

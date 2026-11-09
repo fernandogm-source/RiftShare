@@ -1,30 +1,26 @@
-import { login } from "./auth.js";
+import { register } from "./auth.js";
 
-const loginForm = document.getElementById("login");
-const errGeneral = document.getElementById("err-login");
+const registerForm = document.getElementById("register");
+const errGeneral = document.getElementById("err-register");
 
-document.getElementById("logo").addEventListener("click", () =>{
-    window.location.href = "index.html" ;
-});
-
-loginForm.addEventListener("submit", async (e) => {
+registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     limpiarErrores();
 
+    const username = document.getElementById("username").value;
     const email = document.getElementById("email").value;
     const contraseña = document.getElementById("contraseña").value;
 
     try {
-        const datos = await login(email, contraseña);
-        localStorage.setItem("token",datos.token);
-        localStorage.setItem("user",datos.user.username);
-        window.location.href = "index.html";
+        await register(username, email, contraseña);
+        window.location.href = "loginForm.html";
     } catch (error) {
         if (error.details) {
             const errores = {
-                email: document.getElementById("err-login-email"),
-                contraseña: document.getElementById("err-login-password"),
+                username: document.getElementById("err-register-username"),
+                email: document.getElementById("err-register-email"),
+                contraseña: document.getElementById("err-register-password"),
             };
 
             error.details.forEach((detalle) => {
@@ -34,7 +30,7 @@ loginForm.addEventListener("submit", async (e) => {
             });
         }else{
             errGeneral.textContent = error.message;
-            errGeneral.hidden = false;
+           errGeneral.hidden = false;
         }
     }
 });
@@ -49,3 +45,7 @@ function limpiarErrores(){
         element.hidden = true;
     });
 }
+
+document.getElementById("logo").addEventListener("click", () =>{
+    window.location.href = "/index.html" ;
+});

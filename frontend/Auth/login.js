@@ -1,26 +1,30 @@
-import { register } from "./auth.js";
+import { login } from "./auth.js";
 
-const registerForm = document.getElementById("register");
-const errGeneral = document.getElementById("err-register");
+const loginForm = document.getElementById("login");
+const errGeneral = document.getElementById("err-login");
 
-registerForm.addEventListener("submit", async (e) => {
+document.getElementById("logo").addEventListener("click", () =>{
+    window.location.href = "/index.html" ;
+});
+
+loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     limpiarErrores();
 
-    const username = document.getElementById("username").value;
     const email = document.getElementById("email").value;
     const contraseña = document.getElementById("contraseña").value;
 
     try {
-        await register(username, email, contraseña);
-        window.location.href = "loginForm.html";
+        const datos = await login(email, contraseña);
+        localStorage.setItem("token",datos.token);
+        localStorage.setItem("user",datos.user.username);
+        window.location.href = "/index.html";
     } catch (error) {
         if (error.details) {
             const errores = {
-                username: document.getElementById("err-register-username"),
-                email: document.getElementById("err-register-email"),
-                contraseña: document.getElementById("err-register-password"),
+                email: document.getElementById("err-login-email"),
+                contraseña: document.getElementById("err-login-password"),
             };
 
             error.details.forEach((detalle) => {
@@ -30,7 +34,7 @@ registerForm.addEventListener("submit", async (e) => {
             });
         }else{
             errGeneral.textContent = error.message;
-           errGeneral.hidden = false;
+            errGeneral.hidden = false;
         }
     }
 });
@@ -45,7 +49,3 @@ function limpiarErrores(){
         element.hidden = true;
     });
 }
-
-document.getElementById("logo").addEventListener("click", () =>{
-    window.location.href = "index.html" ;
-});

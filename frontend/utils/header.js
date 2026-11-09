@@ -1,5 +1,3 @@
-
-
 export function actualizarCabecera(){
     const jwtStorage = localStorage.getItem("token");
     const userStorage = localStorage.getItem("user");
@@ -14,15 +12,15 @@ export function actualizarCabecera(){
     }
 
     document.getElementById("toLogin").addEventListener("click", () =>{
-    window.location.href = "loginForm.html" ;
+    window.location.href = "/Auth/loginForm.html" ;
     });
     document.getElementById("logo").addEventListener("click", () =>{
-        window.location.href = "index.html" ;
+        window.location.href = "/index.html" ;
     });
     document.getElementById("toLogout").addEventListener("click",() =>{
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        window.location.href = "index.html" ;
+        window.location.href = "/index.html" ;
     })
 }
 
