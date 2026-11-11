@@ -134,6 +134,18 @@
 - Conceptos practicados: rutas relativas frente a absolutas y cómo cambian al mover archivos entre carpetas.
 - Pendiente: comprobar en el navegador las cuatro páginas tras el cambio.
 
+### Seed de colección – backend (11/11/2026)
+- Nuevo `backend/db/seed-collection.js` y script `npm run seed:collection -- <email|username> [numeroDeCartas]`. No sustituye al seed del catálogo (`db/seed.js`).
+- Añade cartas aleatorias (20 por defecto) a la colección del usuario indicado, con cantidad aleatoria de 1 a 3. Si la carta ya existe, suma la cantidad sin superar `MAX_QUANTITY`.
+- Usa `ON CONFLICT (user_id, card_id)` para poder ejecutarlo varias veces, y una transacción con `ROLLBACK` si falla. Si el usuario no existe, avisa y no cambia nada.
+- Comprobado en la base de datos: `nando` tiene 20 cartas y 35 copias, con cantidades entre 1 y 3. No se ha comprobado con la API porque hace falta el token.
+
+### Colección: reutilizar `pintarCartas` (11/11/2026)
+- Se eliminó `pintarColeccion` de `collection.js`, que era una copia de `pintarCartas`. Ahora `pintarCartas` y `vaciarCartas` se exportan desde `cards.js` y `collection.js` las importa desde `../cards.js`.
+- `cargarColeccion` pasa `datos.data` directamente a `pintarCartas(cartas)`, así que la variable global `let cartas` ya no hace falta.
+- Error encontrado: la ruta del import era `"../cards,js"` (coma en lugar de punto). El módulo no se cargaba y la página no funcionaba.
+- Comprobado en el navegador: las cartas de la colección se ven y el modal de detalle funciona.
+
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
 - `async`/`await`: `await` espera el valor de la promesa, pero solo dentro de funciones `async` en un script clásico.
@@ -200,6 +212,7 @@
 - Registrar un listener dentro de un clic (por ejemplo, el de «Cerrar» dentro del clic de cada carta): cada clic añade otro listener y la acción se repite.
 - Limpiar el modal solo en el botón «Cerrar»: al cerrar con Escape no se ejecuta esa limpieza. Usa el evento `close`.
 - Intentar reasignar `req.query` en Express 5: es un getter de solo lectura; usa `req.validatedQuery` o el valor devuelto por `parse`.
+- Escribir la ruta de un import con coma (`"../cards,js"`) en lugar de punto: el módulo no se carga y no hay error visible en la página.
 - Validar con Zod pero seguir usando el dato original: hay que usar el resultado de `parse` (ya convertido y transformado), no `req.body`/`req.query` sin validar.
 
 ### Documentación – AGENTS.md actualizado (07/11/2026)

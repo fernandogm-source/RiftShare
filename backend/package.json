@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "node --watch src/app.js",
-    "seed": "node db/seed.js"
+    "seed": "node db/seed.js",
+    "seed:collection": "node db/seed-collection.js"
   },
   "license": "ISC",
   "dependencies": {

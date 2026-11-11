@@ -1,6 +1,5 @@
 import { pintarPaginacion } from "./utils/pagination.js";
 import { cargarDetails } from "./utils/details.js";
-let cartas;
 
 export async function cargarCartas(page,limit = 12) {
     try {
@@ -9,12 +8,12 @@ export async function cargarCartas(page,limit = 12) {
         }
         document.getElementById("err-cartas").setAttribute("hidden","");
         const datos = await respuesta.json();
-        cartas = datos.data;
+        let cartas = datos.data;
         let totalPages = datos.pagination.totalPages;
         
         pintarPaginacion(totalPages);
 
-        pintarCartas();
+        pintarCartas(cartas);
     } catch (error) {
         vaciarCartas();
         document.getElementById("err-cartas").textContent = error.message;
@@ -24,8 +23,8 @@ export async function cargarCartas(page,limit = 12) {
     
 };
 
-function pintarCartas(){
-    cartas.forEach(element => {
+export function pintarCartas(array){
+    array.forEach(element => {
 
         const contenedor = document.createElement("div");
         contenedor.id = element.id;

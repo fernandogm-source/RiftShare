@@ -12,6 +12,7 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 - `npm run dev`: servidor con `node --watch` en http://localhost:3000
 - `npm start`: sin watch
 - `npm run seed`: recarga la base de datos desde `cards.json` y los SQL
+- `npm run seed:collection -- <email|username> [numeroDeCartas]`: añade cartas aleatorias (20 por defecto, cantidad de 1 a 3) a la colección de un usuario existente. Requiere haber ejecutado antes `npm run seed`. Es `db/seed-collection.js`, distinto de `db/seed.js`.
 - No hay tests, lint ni typecheck configurados. No inventes `npm test`.
 
 ## Base de datos
@@ -38,7 +39,7 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 - `auth.js` lanza un `Error` con `message` = `datos.error` y, si la API lo envía, `details` (array de `{ field, message }`) para pintar cada error bajo su campo.
 - Páginas: `index.html` (catálogo), `loginForm.html`, `registerForm.html`, `collection.html` (mi colección). `app.js` contiene la lógica del catálogo y el modal de detalle.
 - Módulos compartidos: `header.js` (`actualizarCabecera()`: muestra u oculta los botones de sesión y registra sus listeners) y `pagination.js` (`iniciarPaginacion(alCambiarPagina)`, `pintarPaginacion(total)` y `paginaActual()`: guarda la página actual y registra los botones «anterior» y «siguiente»). Cada página los importa; no se comparten variables entre archivos, solo funciones exportadas.
-- La colección tiene un único script, `collection.js` (script de `collection.html`): hace las llamadas a la API, pinta y escucha eventos. No se separa en módulos de API y DOM.
+- La colección tiene un único script, `collection.js` (script de `collection.html`): hace las llamadas a la API, pinta y escucha eventos. No se separa en módulos de API y DOM. Para pintar las cartas reutiliza `pintarCartas` y `vaciarCartas` de `cards.js` (importadas desde `../cards.js`), en lugar de tener copias.
 - Estructura: `index.html`, `app.js`, `cards.js` y `style.css` en la raíz de `frontend/`; `Auth/` (login y registro), `Collection/` (colección) y `utils/` (`header.js`, `pagination.js`, `details.js`); imágenes en `img/`.
 - Rutas de recursos y navegación absolutas desde la raíz de `frontend/` (`/style.css`, `/img/RiftShare-cropped.svg`, `/Auth/loginForm.html`), para que funcionen desde cualquier carpeta.
 - El formulario de registro usa `username` en el HTML; la API espera `username`, `email` y `contraseña`.
