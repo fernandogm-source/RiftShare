@@ -31,3 +31,22 @@ export async function login(email, contraseña) {
 
   return datos;
 }
+export function cabeceraAutorizacion() {
+    const token = localStorage.getItem("token");
+
+    if (token === null) {
+        window.location.href = "/Auth/loginForm.html" ;
+        return null;
+    }
+
+    return { Authorization: "Bearer " + token };
+}
+export function usuarioLogueado(){
+  const token = localStorage.getItem("token");
+
+  if(token){
+    return true;
+  }else{
+    return false;
+  }
+}

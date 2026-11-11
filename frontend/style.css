@@ -211,6 +211,7 @@ header {
     aspect-ratio: 5 / 7;
     overflow: hidden;
     border-bottom: #C5A86A 2px solid;
+    cursor: pointer;
 }
 .battlefieldImg{
     position: absolute;
@@ -222,10 +223,11 @@ header {
     object-fit: contain;
 }
 .contenedor{
+    display: flex;
+    flex-direction: column;
     border: #C5A86A solid 2px;
     padding: 5px;
     border-radius: 15px;
-    cursor: pointer;
 }
 #paginacion{
     display: flex;
@@ -233,7 +235,7 @@ header {
     gap: 20px;
     padding: 20px;
 }
-#paginacion button{
+.btn{
     border: solid 2px #C5A86A;
     border-radius: 5px;
     background-color: #1A1A1A;
@@ -243,13 +245,34 @@ header {
     font-size: 30px;
     text-align: center;
 }
-#paginacion button:hover{
+.btn:hover{
     border: solid 2px #1A1A1A;
     background-color: #C5A86A;
     color: #1A1A1A;
     cursor: pointer;
 }
-
+/* /////////////////////////////////////////////////////////////////////////////// */
+/*///////////////////////FuncionesColeccion//////////////////////// */
+.nombre, .tipo{
+    margin: 0 0 8px;
+}
+.nombre{
+    min-height: 2.8em;
+}
+.funcionesColeccion{
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+}
+.numeroCartas{
+    color: #C5A86A;
+    font-size: 24px;
+    min-width: 40px;
+    text-align: center;
+}
 /* /////////////////////////////////////////////////////////////////////////////// */
 /*///////////////////////Details//////////////////////// */
 dialog:open{

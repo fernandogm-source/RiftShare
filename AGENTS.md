@@ -48,6 +48,7 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 ## Inicio de sesión
 - Antes de responder, lee `lessons.md` (en la raíz). Contiene lo que el usuario ya ha visto y practicado, y el punto en el que se quedó.
 - Al terminar un paso o micro-paso relevante, añade una entrada nueva a `lessons.md` con la fecha, el tema y lo que el usuario ha conseguido.
+- Paso en curso (11/11/2026): botones +1 / -1 en las cartas. Lo hecho y lo pendiente está en la sección «Botones +1 / -1 en las cartas» de `lessons.md`. El siguiente paso es sacar la recarga de `cards.js` y pasarla desde la página como función (no usar `cargarCartas` para recargar la colección).
 
 ## Contexto de enseñanza
 - Es un proyecto de aprendizaje: el usuario escribe el frontend en vanilla JS. Explica y guía con pasos y pistas; no generes páginas completas de frontend salvo que lo pida explícitamente. El backend se puede modificar con normalidad.

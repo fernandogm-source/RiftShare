@@ -1,5 +1,6 @@
-import { pintarPaginacion } from "./utils/pagination.js";
+import { pintarPaginacion, paginaActual } from "./utils/pagination.js";
 import { cargarDetails } from "./utils/details.js";
+import { usuarioLogueado, cabeceraAutorizacion } from "./Auth/auth.js";
 
 export async function cargarCartas(page,limit = 12) {
     try {
@@ -13,7 +14,7 @@ export async function cargarCartas(page,limit = 12) {
         
         pintarPaginacion(totalPages);
 
-        pintarCartas(cartas);
+        pintarCartas(cartas,usuarioLogueado());
     } catch (error) {
         vaciarCartas();
         document.getElementById("err-cartas").textContent = error.message;
@@ -23,20 +24,20 @@ export async function cargarCartas(page,limit = 12) {
     
 };
 
-export function pintarCartas(array){
+export function pintarCartas(array, logued ){
     array.forEach(element => {
 
         const contenedor = document.createElement("div");
         contenedor.id = element.id;
         contenedor.className = "contenedor";
-            contenedor.addEventListener("click", () =>{
-                document.getElementById("details").showModal();
-                cargarDetails(element.id);
-            });
 
         const imagen = document.createElement("img");
         const imgDiv = document.createElement("div");
         imgDiv.className = "imgDiv";
+        imgDiv.addEventListener("click", () =>{
+                document.getElementById("details").showModal();
+                cargarDetails(element.id);
+            });
         if(element.card_type === "Battlefield"){
             imagen.classList.add("battlefieldImg");
         }
@@ -56,6 +57,47 @@ export function pintarCartas(array){
         tipo.className = "tipo";
         contenedor.appendChild(tipo);
 
+        if(logued === true){
+            const funcionesColeccion = document.createElement("div");
+            const quitarCartaBtn = document.createElement("button");
+            const cartasAñadidas = document.createElement("span");
+            const añadirCartaBtn = document.createElement("button");
+           
+
+            funcionesColeccion.classList.add("funcionesColeccion");
+            añadirCartaBtn.classList.add("btn");
+            quitarCartaBtn.classList.add("btn");
+            cartasAñadidas.classList.add("numeroCartas");
+
+            añadirCartaBtn.id = "funcionAñadirColeccion_"+ element.id;
+            quitarCartaBtn.id = "funcionQuitarColeccion_"+ element.id;
+
+            añadirCartaBtn.textContent = "+";
+            quitarCartaBtn.textContent = "-";
+
+            añadirCartaBtn.addEventListener("click", async () =>{
+                try {
+                    await añadirCarta(element.id);
+                    cargarCartas(paginaActual());
+                } catch (error) {
+                    
+                }
+            });
+
+            if(element.quantity === undefined){
+                cartasAñadidas.textContent = 0;
+            }else{
+                cartasAñadidas.textContent = element.quantity;
+            }
+            
+
+            funcionesColeccion.appendChild(quitarCartaBtn);
+            funcionesColeccion.appendChild(cartasAñadidas);
+            funcionesColeccion.appendChild(añadirCartaBtn);
+        
+            contenedor.appendChild(funcionesColeccion)
+        }
+
         document.getElementById("cartas").appendChild(contenedor);
     });
 };
@@ -65,4 +107,33 @@ export function vaciarCartas(){
     while(lista.hasChildNodes()){
         lista.removeChild(lista.firstChild);
     }
+};
+
+export async function añadirCarta(cardId) {
+
+    const cabecera = cabeceraAutorizacion();
+    
+    if(cabecera === null){
+        return
+    };
+
+    const respuesta = await fetch("/api/collection", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...cabecera
+        },
+        body: JSON.stringify({ card_id: cardId, quantity: 1 })
+    });
+    
+    const datos = await respuesta.json();
+    
+    if(!respuesta.ok){
+        const error = new Error(datos.error);
+        error.details = datos.details;
+        throw error;
+    }
+    
+    return datos;
+    
 };

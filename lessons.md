@@ -146,6 +146,31 @@
 - Error encontrado: la ruta del import era `"../cards,js"` (coma en lugar de punto). El módulo no se cargaba y la página no funcionaba.
 - Comprobado en el navegador: las cartas de la colección se ven y el modal de detalle funciona.
 
+### Botones +1 / -1 en las cartas (en curso, 11/11/2026)
+- Decisiones tomadas:
+  - Botones `-` a la izquierda, cantidad en el centro y `+` a la derecha.
+  - `+1` = `POST /api/collection` con `quantity: 1` (el servidor suma, con tope de 99).
+  - `-1` = `PUT` con `quantity - 1` si quedan más de una copia, o `DELETE` si era la última (el `PUT` no admite 0).
+  - Tras cada acción se recarga la lista.
+  - Los controles solo aparecen con sesión: `pintarCartas(array, logued)` los pinta solo si `logued === true`.
+  - Con sesión no se pide la cabecera al cargar el catálogo: se usa `usuarioLogueado()` (no redirige), y `cabeceraAutorizacion()` (sí redirige) solo en acciones que necesitan token.
+- Hecho:
+  - Token: `cabeceraAutorizacion()` y `usuarioLogueado()` exportadas desde `Auth/auth.js`. La copia de `collection.js` eliminada.
+  - `cards.js`: pinta `-`, cantidad (`element.quantity`, o 0 si no existe) y `+`, después de `.imgDiv`, `.nombre` y `.tipo`. Ids únicos con `"funcionAñadirColeccion_" + element.id`.
+  - Listener de clic del detalle movido a `.imgDiv` (los botones no abren el modal).
+  - `añadirCarta(cardId)` en `cards.js` con `quantity: 1`, que devuelve `undefined` si no hay sesión.
+  - `collection.js` pasa `usuarioLogueado()` a `pintarCartas`.
+  - CSS: `.contenedor` en columna, `.funcionesColeccion` con `margin-top: auto` (los botones quedan alineados al fondo), `space-between`, `.numeroCartas` con ancho mínimo, y `.nombre`/`.tipo` con margen fijo y `min-height` de dos líneas en `.nombre`.
+  - Listener de `+` registrado con `async () => { try { await añadirCarta(element.id); ... } catch (error) { ... } }`.
+- Pendiente en el paso actual:
+  - **Recarga incorrecta**: el listener llama a `cargarCartas(paginaActual())`. Está mal por dos motivos: `cargarCartas` pide el catálogo (`/api/cards`), no la colección, y `paginaActual` no está importada en `cards.js` (el error se oculta por el `catch` vacío). Solución prevista: que `pintarCartas` reciba desde la página una función de recarga (como `iniciarPaginacion` recibe `alCambiarPagina`); `collection.js` pasa `cargarColeccion(paginaActual())` y `app.js` la del catálogo.
+  - **`catch` vacío**: mostrar el error (en la colección, `#err-cartas`).
+  - Listener de `-` (`PUT` o `DELETE` según la cantidad).
+  - Desactivar `+` al llegar a 99.
+  - Catálogo: con sesión, pedir `GET /api/collection/quantities` y pasar las cantidades a `pintarCartas` (ahora el número muestra 0 en el catálogo).
+  - Renombrar el parámetro `logued` a `conControles` y `if (logued === true)` a `if (conControles)`.
+  - Espacios sobrantes en `cards.js` (líneas de los botones y el parámetro).
+
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
 - `async`/`await`: `await` espera el valor de la promesa, pero solo dentro de funciones `async` en un script clásico.
