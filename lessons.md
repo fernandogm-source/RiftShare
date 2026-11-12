@@ -171,6 +171,26 @@
   - Renombrar el parámetro `logued` a `conControles` y `if (logued === true)` a `if (conControles)`.
   - Espacios sobrantes en `cards.js` (líneas de los botones y el parámetro).
 
+### Botones +1 / -1: estado al 12/11/2026
+- Hecho:
+  - `cards.js` exporta `añadirCarta(cardId)` (POST con `quantity: 1`) y `quitarCarta(cardId, cantidadActual)` (PUT si quedan copias, DELETE si era la última; sin `json()` en DELETE).
+  - `pintarCartas(logued)` usa la variable de módulo `cartas` (la rellena `cargarCartas`). Pinta `-`, cantidad y `+` solo si `logued === true`.
+  - El `+` del catálogo y de la colección llama a `vaciarCartas()` y después recarga. El `-` de la colección también.
+  - Ids de botones únicos con `"funcionAñadirColeccion_" + element.id`.
+  - `paginaActual` importada en `cards.js`. El error de recarga oculto con `hidden = true`.
+- Pendiente, por prioridad:
+  1. **`-` en el catálogo**: llama a `cargarColeccion`, que solo existe en `collection.js`. Falla con `ReferenceError`, el `catch` lo oculta y el catálogo queda vacío. Solución: que la recarga la decida la página (por ejemplo, que `pintarCartas` reciba una función).
+  2. **`collection.js` duplica `pintarCartas`** como `pintarColeccion`. Hay que volver a usar `pintarCartas` de `cards.js`, como acordamos.
+  3. **`catch` vacíos** en los listeners de `+` y `-`: mostrar el mensaje en `#err-cartas` (colección) o en un elemento propio (catálogo).
+  4. **Números**: en el catálogo siempre aparece 0, porque no se piden las cantidades (`GET /api/collection/quantities`).
+  5. **Límite de 99**: desactivar `+` al llegar a 99.
+  6. **Renombrar `logued`** a `conControles` y `if (logued === true)` a `if (conControles)`.
+  7. **Punto y coma** tras `vaciarCartas()` en los dos listeners.
+- Otros pendientes del frontend (revisión del 12/11/2026):
+  - `details.js`: `cargarDetails` con `catch` vacío; en `borrarDetails` la constante `img` es en realidad el contenedor `#imgDetails`.
+  - `login.js` y `register.js`: `errores[detalle.field]` puede ser `undefined`; `register.js` redirige a `"loginForm.html"` (relativo, debería ser `/Auth/loginForm.html`).
+  - `style.css`: `#login-link p` debería ser `.login-link`; `.main-index` necesita `overflow` o alto flexible para la lista de cartas.
+
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.
 - `async`/`await`: `await` espera el valor de la promesa, pero solo dentro de funciones `async` en un script clásico.

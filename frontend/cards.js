@@ -2,19 +2,20 @@ import { pintarPaginacion, paginaActual } from "./utils/pagination.js";
 import { cargarDetails } from "./utils/details.js";
 import { usuarioLogueado, cabeceraAutorizacion } from "./Auth/auth.js";
 
+let cartas;
 export async function cargarCartas(page,limit = 12) {
     try {
         const respuesta = await fetch("/api/cards?page="+page+"&limit="+limit);
         if(!respuesta.ok){throw new Error("Error al cargar las cartas");
         }
-        document.getElementById("err-cartas").setAttribute("hidden","");
+        document.getElementById("err-cartas").hidden = true;
         const datos = await respuesta.json();
-        let cartas = datos.data;
+        cartas = datos.data;
         let totalPages = datos.pagination.totalPages;
         
         pintarPaginacion(totalPages);
 
-        pintarCartas(cartas,usuarioLogueado());
+        pintarCartas(usuarioLogueado());
     } catch (error) {
         vaciarCartas();
         document.getElementById("err-cartas").textContent = error.message;
@@ -24,8 +25,8 @@ export async function cargarCartas(page,limit = 12) {
     
 };
 
-export function pintarCartas(array, logued ){
-    array.forEach(element => {
+export function pintarCartas( logued ){
+    cartas.forEach(element => {
 
         const contenedor = document.createElement("div");
         contenedor.id = element.id;
@@ -78,11 +79,22 @@ export function pintarCartas(array, logued ){
             añadirCartaBtn.addEventListener("click", async () =>{
                 try {
                     await añadirCarta(element.id);
+                    vaciarCartas()
                     cargarCartas(paginaActual());
                 } catch (error) {
                     
                 }
             });
+
+            quitarCartaBtn.addEventListener("click", async () =>{
+                            try {
+                                await quitarCarta(element.id,element.quantity);
+                                vaciarCartas()
+                                cargarColeccion(paginaActual());
+                            } catch (error) {
+                                
+                            }
+                        });
 
             if(element.quantity === undefined){
                 cartasAñadidas.textContent = 0;
@@ -136,4 +148,48 @@ export async function añadirCarta(cardId) {
     
     return datos;
     
+};
+
+export async function quitarCarta(cardId, cantidadActual) {
+
+    const cabecera = cabeceraAutorizacion();
+
+    if(cabecera === null){
+        return
+    };
+
+    if(cantidadActual > 1){
+        const respuesta = await fetch("/api/collection/" + cardId, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                ...cabecera
+            },
+            body: JSON.stringify({ quantity: cantidadActual - 1 })
+        });
+
+        const datos = await respuesta.json();
+
+        if(!respuesta.ok){
+            const error = new Error(datos.error);
+            error.details = datos.details;
+            throw error;
+        }
+
+        return datos;
+    }
+
+    const respuesta = await fetch("/api/collection/" + cardId, {
+        method: "DELETE",
+        headers: {
+            ...cabecera
+        }
+    });
+
+    if(!respuesta.ok){
+        throw new Error("No se pudo quitar la carta");
+    }
+
+    return null;
+
 };

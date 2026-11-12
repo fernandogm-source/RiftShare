@@ -30,7 +30,7 @@ registerForm.addEventListener("submit", async (e) => {
             });
         }else{
             errGeneral.textContent = error.message;
-           errGeneral.hidden = false;
+            errGeneral.hidden = false;
         }
     }
 });

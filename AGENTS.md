@@ -35,7 +35,8 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 
 ## Frontend
 - Mismo origen que la API: usar rutas relativas (`/api/...`). El token JWT se guarda en `localStorage`; no hay cookie de sesión.
-- Reparto para auth: `auth.js` (llamadas a la API, sin DOM), `login.js` y `register.js` (lógica de cada formulario, importan de `auth.js`).
+- Reparto para auth: `Auth/auth.js` (llamadas a la API y utilidades de sesión: `cabeceraAutorizacion()` redirige al login si no hay token y devuelve la cabecera; `usuarioLogueado()` devuelve `true`/`false` sin redirigir), `login.js` y `register.js` (lógica de cada formulario, importan de `auth.js`).
+- `cards.js` (raíz de `frontend/`): `cargarCartas`, `pintarCartas(logued)` (usa la variable de módulo `cartas`), `vaciarCartas`, y las acciones de la colección `añadirCarta(cardId)` y `quitarCarta(cardId, cantidadActual)`. Lo importan `app.js` y `Collection/collection.js`.
 - `auth.js` lanza un `Error` con `message` = `datos.error` y, si la API lo envía, `details` (array de `{ field, message }`) para pintar cada error bajo su campo.
 - Páginas: `index.html` (catálogo), `loginForm.html`, `registerForm.html`, `collection.html` (mi colección). `app.js` contiene la lógica del catálogo y el modal de detalle.
 - Módulos compartidos: `header.js` (`actualizarCabecera()`: muestra u oculta los botones de sesión y registra sus listeners) y `pagination.js` (`iniciarPaginacion(alCambiarPagina)`, `pintarPaginacion(total)` y `paginaActual()`: guarda la página actual y registra los botones «anterior» y «siguiente»). Cada página los importa; no se comparten variables entre archivos, solo funciones exportadas.
@@ -48,7 +49,7 @@ Proyecto de clase (DAW 2º, asignatura Cliente): catálogo de cartas Riftbound. 
 ## Inicio de sesión
 - Antes de responder, lee `lessons.md` (en la raíz). Contiene lo que el usuario ya ha visto y practicado, y el punto en el que se quedó.
 - Al terminar un paso o micro-paso relevante, añade una entrada nueva a `lessons.md` con la fecha, el tema y lo que el usuario ha conseguido.
-- Paso en curso (11/11/2026): botones +1 / -1 en las cartas. Lo hecho y lo pendiente está en la sección «Botones +1 / -1 en las cartas» de `lessons.md`. El siguiente paso es sacar la recarga de `cards.js` y pasarla desde la página como función (no usar `cargarCartas` para recargar la colección).
+- Paso en curso (12/11/2026): botones +1 / -1 en las cartas. Lo hecho y lo pendiente está en la sección «Botones +1 / -1: estado al 12/11/2026» de `lessons.md`. El primer pendiente es que el `-` del catálogo no llame a `cargarColeccion` (esa función solo existe en `collection.js`) y que la recarga la decida la página. Después, eliminar la copia `pintarColeccion` de `collection.js` y reutilizar `pintarCartas`.
 
 ## Contexto de enseñanza
 - Es un proyecto de aprendizaje: el usuario escribe el frontend en vanilla JS. Explica y guía con pasos y pistas; no generes páginas completas de frontend salvo que lo pida explícitamente. El backend se puede modificar con normalidad.
