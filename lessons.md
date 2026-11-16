@@ -179,10 +179,10 @@
   - Ids de botones únicos con `"funcionAñadirColeccion_" + element.id`.
   - `paginaActual` importada en `cards.js`. El error de recarga oculto con `hidden = true`.
 - Pendiente, por prioridad:
-  1. **`-` en el catálogo**: llama a `cargarColeccion`, que solo existe en `collection.js`. Falla con `ReferenceError`, el `catch` lo oculta y el catálogo queda vacío. Solución: que la recarga la decida la página (por ejemplo, que `pintarCartas` reciba una función).
+  1. ~~**`-` en el catálogo**~~: resuelto el 13/11/2026 (ver «Cantidades y `-` en el catálogo»).
   2. **`collection.js` duplica `pintarCartas`** como `pintarColeccion`. Hay que volver a usar `pintarCartas` de `cards.js`, como acordamos.
   3. **`catch` vacíos** en los listeners de `+` y `-`: mostrar el mensaje en `#err-cartas` (colección) o en un elemento propio (catálogo).
-  4. **Números**: en el catálogo siempre aparece 0, porque no se piden las cantidades (`GET /api/collection/quantities`).
+  4. ~~**Números**~~: resuelto el 13/11/2026 (ver «Cantidades y `-` en el catálogo»).
   5. **Límite de 99**: desactivar `+` al llegar a 99.
   6. **Renombrar `logued`** a `conControles` y `if (logued === true)` a `if (conControles)`.
   7. **Punto y coma** tras `vaciarCartas()` en los dos listeners.
@@ -190,6 +190,119 @@
   - `details.js`: `cargarDetails` con `catch` vacío; en `borrarDetails` la constante `img` es en realidad el contenedor `#imgDetails`.
   - `login.js` y `register.js`: `errores[detalle.field]` puede ser `undefined`; `register.js` redirige a `"loginForm.html"` (relativo, debería ser `/Auth/loginForm.html`).
   - `style.css`: `#login-link p` debería ser `.login-link`; `.main-index` necesita `overflow` o alto flexible para la lista de cartas.
+
+### Pintado separado: catálogo y colección (13/11/2026)
+- Decisión: se descarta reutilizar `pintarCartas` en la colección. Cada página tiene su función de pintado: `pintarCartas` en `cards.js` (catálogo, con `+`) y `pintarColeccion` en `Collection/collection.js` (con `+` y `-`).
+- Motivo: el catálogo y la colección tienen controles distintos, y así cada función decide su recarga sin depender de la otra página.
+- Consecuencia: el pendiente «reutilizar `pintarCartas`» queda cerrado. El de «`-` del catálogo llama a `cargarColeccion`» desaparece, porque el `-` solo existe en la colección.
+- Documentación actualizada: `AGENTS.md` (sección Frontend) describe las dos funciones.
+- Pendiente: que el código siga esta decisión (`pintarCartas` sin `logued`, límite de 99, `catch` visibles).
+
+### Cantidades y `-` en el catálogo (13/11/2026)
+- Comprobado por el usuario: el catálogo muestra la cantidad real de cada carta y el `-` funciona desde `index.html`.
+- Cómo quedó en `cards.js`:
+  - Variable de módulo `let cantidades = {};`, rellenada por `cargarCantidades()` con `GET /api/collection/quantities` (con cabecera; sin sesión queda vacía).
+  - `cargarCartas` llama a `await cargarCantidades()` antes de `pintarPaginacion` y `pintarCartas`.
+  - `pintarCartas` escribe `cantidades[element.id] ?? 0` en el número.
+  - El `-` llama a `quitarCarta(element.id, cantidades[element.id])` y después `vaciarCartas()` y `cargarCartas(paginaActual())`. Así el catálogo se recarga a sí mismo, sin `cargarColeccion`.
+- Conceptos practicados: `?? 0` como valor por defecto; objeto usado como diccionario `id → cantidad`; función que pide datos auxiliares antes de pintar.
+- Pendiente: `pintarCartas` sigue con el parámetro `logued`.
+
+- Pendiente en la colección: `pintarColeccion` sigue duplicada en `collection.js` y la línea que llama a `cargarDetails` no tiene su import.
+
+### Bloqueo de `-` y `+` según cantidad (13/11/2026)
+- Hecho: en `pintarCartas`, `const cantidad = cantidades[element.id] ?? 0;`, con `quitarCartaBtn.disabled = cantidad === 0` y `añadirCartaBtn.disabled = cantidad === 99`. La propiedad `disabled`, no `setAttribute`.
+- Hecho: los `catch` de `+` y `-` ahora muestran el mensaje en `#err-cartas` en lugar de estar vacíos (corregido el 16/11: el registro decía `throw error`, pero el código ya no lo hacía).
+- Conceptos practicados: `disabled` como propiedad booleana; `===` para comparar con un número; un botón desactivado no dispara `click`.
+- Hecho: CSS de `.btn:disabled` y `.btn:disabled:hover` en `style.css`, con `opacity`, `cursor: not-allowed` y el hover anulado cuando está desactivado.
+- Pendiente:
+  - Línea redundante en `pintarCartas`: `cartasAñadidas.textContent = cantidades[element.id] ?? 0;` (antes de `const cantidad`) asigna el mismo valor que la línea `cartasAñadidas.textContent = cantidad;`. Basta con dejar una.
+  - ~~`throw error` en un listener no muestra nada al usuario~~: resuelto el 16/11, los `catch` pintan el error en `#err-cartas`.
+
+### Token caducado en el catálogo (16/11/2026)
+- Síntoma: el catálogo no mostraba cartas y aparecía un error. Causa: el token JWT caduca a la hora y `GET /api/collection/quantities` respondía 401. Ese error subía hasta el `try` de `cargarCartas` y vaciaba `#cartas`.
+- Hecho en `frontend/cards.js` (`cargarCantidades`):
+  - Un 401 borra `token` y `user` de `localStorage` y redirige al login con `sesionCaducada(respuesta)` (cambiado el 16/11: antes solo se borraba la sesión y se seguía mostrando el catálogo).
+  - Cualquier otro fallo se captura dentro de la función y también deja `cantidades = {}`, así que las cartas siempre se pintan.
+- Motivo: las cantidades son un dato secundario. Si no llegan, el catálogo debe seguir mostrándose.
+- Pendiente de comprobar en el navegador: catálogo con token caducado (sin `+`/`-`) y con sesión válida (números y botones funcionando).
+- Conceptos practicados: comprobar `respuesta.status === 401` antes que `respuesta.ok`; `localStorage.removeItem` para cerrar sesión desde el cliente.
+
+### Filtros: backend y HTML (16/11/2026)
+- Backend: `GET /api/filters` devuelve `{ rarities, types }` (valores distintos de la base de datos). Va en `filters.controller.js` y `filters.routes.js`, montado en `routes/index.js`. Se llama `filters` y no `cards/options` para que no lo tome `/api/cards/:id` como un id de carta.
+- HTML: `<form id="filtros">` en `index.html` y `collection.html`, encima de `#cartas`, con:
+  - `name` de cada campo igual al parámetro de la API (`name`, `set`, `domain`, `rarity`, `type`, `might_min`, `might_max`, `energy_min`, `energy_max`, `power_min`, `power_max`). Así `FormData` puede construir la URL sin traducir nombres.
+  - Selects con solo la opción «Todos», que se rellenarán desde JS.
+  - `novalidate` en el formulario, según `AGENTS.md`.
+- CSS: sección «Filtros» en `style.css`, con la barra en `flex` y `flex-wrap`, y campos con el mismo borde dorado que el resto. Los botones de la barra no usan la clase `.btn` porque fija `font-size: 30px` y un ancho de 80px.
+- Rangos con sliders (`type="range"`): cada stat tiene dos sliders, `_min` y `_max`, con los límites de los datos de `cards.json` (might 0–12, energy 0–12, power 0–4). Están superpuestos en `.slider-doble` para que se vean como una sola barra de rango: el track se dibuja con `::before` y los sliders son transparentes, con `pointer-events: none` salvo en el pulgar. Un `<output>` por stat (`mightValor`, `energyValor`, `powerValor`) muestra «min – max», y solo se actualiza con JS.
+- CSS corregido (16/11): la regla `#filtros input` aplicaba `height: 40px`, `padding` y `border` también a los sliders, con más especificidad que `.slider-doble input`. Ahora la regla es `#filtros input[type="text"]`. Además, el track tiene `height: 20px` y el pulgar `margin-top: 2px`, para que quede centrado sobre la barra dorada.
+- Sliders en vivo (16/11): `utils/rangos.js` con `iniciarRangos()`, llamado desde `app.js` y `Collection/collection.js`. Al mover un pulgar actualiza el `<output>` («min – max») y pone dos variables CSS (`--desde` y `--hasta`) en `.slider-doble`. El `::before` usa un `linear-gradient` con esas variables: gris fuera del rango y dorado dentro.
+- Hecho (16/11): el pulgar que queda más cerca del extremo derecho va por encima (`z-index`), así el mínimo sigue accesible cuando ambos están en el máximo. Si no, al estar superpuestos el pulgar de arriba (el máximo, que está después en el HTML) tapaba al mínimo.
+- Hecho (16/11): el mínimo no puede superar al máximo. En `rangos.js`, cada slider se limita al valor del otro al hacer `input` (si `_min > _max`, `_min` toma el valor de `_max`, y al revés). Así la API nunca recibe `_min > _max` desde la barra.
+- Importante para el JS: un slider siempre tiene valor, así que si se envía `might_min=0` la API descarta las cartas sin might (`NULL >= 0` no es verdadero). El JS debe enviar un parámetro de rango solo cuando el usuario lo haya movido, comparando con el valor por defecto.
+- Hecho (16/11): `utils/filters.js`.
+  - `iniciarFiltros(alAplicarFiltros)`: carga `/api/filters`, `/api/sets` y `/api/domains`, rellena los selects, y escucha el `submit` y el botón «Limpiar». Limpiar hace `reset()`, dispara `input` en los sliders para que se actualicen los `<output>`, y aplica los filtros.
+  - `filtrosActuales()`: devuelve un `URLSearchParams` solo con los campos con valor. Un slider se envía solo si su valor es distinto de su `value` por defecto (`defaultValue`), así no se descartan las cartas sin might/energy/power.
+  - `cargarCartas` (`cards.js`) y `cargarColeccion` (`collection.js`) añaden `filtrosActuales()` a la URL, con `page` y `limit` puestos después.
+  - `reiniciarPaginacion()` en `pagination.js` vuelve a la página 1 al cambiar filtros.
+  - Sin resultados: `#err-cartas` muestra «No hay cartas con esos filtros».
+- Pendiente de comprobar en el navegador.
+
+### Sesión caducada en la colección (16/11/2026)
+- `auth.js`: `sesionCaducada(respuesta)` devuelve `true` si `respuesta.status === 401` y borra `token` y `user`.
+- Errores encontrados al añadirla:
+  - Se pasaba `respuesta.status` (un número) en lugar de `respuesta`: `respuesta.status` dentro de la función era `undefined` y nunca se borraba nada.
+  - La llamada se hacía sin usar su resultado: la página seguía y mostraba «Token no válido o caducado» en `#err-cartas`.
+- Solución en `collection.js`: `if (sesionCaducada(respuesta)) { window.location.href = "/Auth/loginForm.html"; return; }`, justo después del `fetch`.
+- Pendiente: mover el `if` por encima de `respuesta.json()`, para que no dependa de que el cuerpo de la respuesta sea JSON.
+- Pendiente de comprobar en el navegador: colección con token caducado redirige al login, y catálogo con token caducado redirige también (decisión cambiada respecto al 16/11 por la mañana, cuando se acordó solo borrar el token).
+- Conceptos practicados: una función que devuelve `true`/`false` solo sirve si se comprueba; el orden de las comprobaciones (antes de leer el cuerpo).
+
+### Panel de administración (16/11/2026)
+- Backend: columna `cards.is_active` (booleana, por defecto `TRUE`). `buildCardFilters` la filtra en catálogo y colección; `/api/cards/:id`, `addItem` y `getSummary` también la respetan.
+- Limitación: un `npm run seed` reactiva todas las cartas (la tabla se recrea).
+- `requireAdmin` consulta el rol en la base de datos, no solo el JWT: un admin degradado pierde el acceso al momento.
+- Rutas: `GET /api/admin/cards` (lista completa con `name` opcional, paginada) y `PUT /api/admin/cards/:id` con `{ is_active }`.
+- Frontend: `Admin/admin.html` y `Admin/admin.js`. Botón «ADMIN» en la cabecera solo si `role === "Admin"`.
+- Pendiente de comprobar: ejecutar `npm run seed` (añade la columna), crear un admin con SQL, y probar desactivar una carta y verla desaparecer de catálogo y colección.
+- Conceptos practicados: `requireAdmin` como segundo middleware en el router (`router.use(requireAuth, requireAdmin)`); `insertRow`/`insertCell` para construir una tabla; guardar y borrar `role` junto al resto de la sesión.
+
+### Responsive: cabecera y filtros (16/11/2026)
+- Cabecera: botón `#menuToggle` (☰) en las tres páginas, visible solo con sesión (`header.js` quita `hidden`). Al pulsarlo se alterna la clase `abierto` en `#menu`.
+- CSS: `@media (max-width: 768px)`: `#menu` se despliega como capa absoluta debajo de la cabecera (no empuja el contenido, así `.main-index` con `calc(100vh - 70px)` sigue bien), los filtros van en columna y los diálogos se apilan. `@media (max-width: 480px)`: logo más pequeño y se oculta el nombre de usuario.
+- Detalle técnico: `.menu-toggle` usa `display: none` en la base y `.menu-toggle:not([hidden])` en la media query. Si pusiera `display: block` sin `:not([hidden])`, anularía el atributo `hidden`.
+- Detalle técnico: en columna, `flex: 1 1 200px` del campo de nombre se convierte en altura, por eso en móvil se resetea con `flex: none`.
+- Corregido (16/11): el campo de nombre se salía de la columna en móvil. Con `width: 100%`, el padding y el borde se sumaban al ancho (`content-box`). Solución: `box-sizing: border-box` en los campos de `#filtros`.
+- Pendiente de comprobar en el navegador, con las herramientas de desarrollo en modo móvil.
+
+### Perfil de usuario (16/11/2026)
+- Backend: `GET /api/users/me`, `PUT /api/users/me` (nombre) y `PUT /api/users/me/password` (pide la contraseña actual con `argon2.verify`). Los dos `PUT` devuelven un token nuevo.
+- `utils/token.js` con `firmarToken`, usado por el login y el perfil, para no repetir la firma.
+- `usernameSchema` exportado desde `auth.schema.js` para reutilizarlo.
+- Frontend: `Profile/profile.html` y `Profile/profile.js`. El botón «PERFIL» está en `#menu` de todas las páginas.
+- Pendiente de comprobar en el navegador: cambiar el nombre (incluido un nombre repetido, 409), cambiar la contraseña (con contraseña actual incorrecta y con confirmación distinta) y el número de copias.
+- Conceptos practicados: reutilizar un esquema de Zod entre dominios; separar la firma del token en una función; `?? general` para mapear errores de validación a su campo.
+
+### Rareza en las cartas (16/11/2026)
+- `cards.js` (`pintarCartas`) y `Collection/collection.js` (`pintarColeccion`) añaden un `p.rareza` debajo de `p.tipo` con `element.rarity`. Mismo patrón que `nombre` y `tipo`.
+- `style.css`: `.rareza` comparte la regla de margen con `.nombre` y `.tipo`.
+- Pendiente de comprobar en el navegador: que la rareza se ve en catálogo y colección sin desplazar los botones.
+
+### Precios (16/11/2026)
+- Base de datos: `cards.price NUMERIC(10,2) NOT NULL`. Al ser obligatorio, no puede haber cartas sin precio.
+- `seed.js`: `precioAleatorio(rareza)` elige un valor dentro de `RANGOS_PRECIO` (Common 0,10–0,50 €, Uncommon 0,50–2 €, Rare 2–10 €, Epic 10–30 €, Showcase 30–80 €, Promo 5–20 €).
+- Backend admin: `PUT /api/admin/cards/:id` acepta `is_active`, `price` o ambos. El `UPDATE` se construye con los campos enviados. Validación: no negativo y como máximo dos decimales. La comprobación de decimales usa una tolerancia (`Math.abs(valor * 100 - Math.round(valor * 100)) < 1e-6`), porque `0.1 * 100` no es exacto en coma flotante.
+- Backend perfil: `GET /api/users/me` devuelve `valor_coleccion` = `ROUND(SUM(cantidad × precio), 2)` de las cartas activas.
+- Frontend: `utils/precio.js` con `formatearPrecio` (`Intl`/`toLocaleString` en `es-ES`, EUR). Se usa en catálogo, colección, detalle, perfil y panel de admin.
+- Conceptos practicados: `NUMERIC` llega como texto desde PostgreSQL, así que se convierte en el frontend; un `UPDATE` construido dinámicamente con placeholders numerados; `.refine` de Zod para una regla que cruza campos.
+- Pendiente de comprobar en el navegador: tras `npm run seed`, precios entre los rangos de cada rareza; el valor del perfil coincide con la suma; editar un precio en el admin cambia el valor del perfil.
+
+### Panel de admin responsive (16/11/2026)
+- `admin.js`: cada celda recibe `data-label` con el texto de su cabecera (`th`), tomado del propio HTML, para no repetir los nombres en JS.
+- `style.css`, `@media (max-width: 768px)`: la cabecera de la tabla se oculta y cada `tr` se muestra como una tarjeta con borde. Cada `td` es un `flex` con la etiqueta (`content: attr(data-label)`) a la izquierda y el contenido a la derecha.
+- Conceptos practicados: `attr()` en pseudoelementos CSS para mostrar datos del HTML; `dataset` en JS; cambiar una tabla a bloques con `display: block` en `table`, `tr` y `td`.
+- Pendiente de comprobar en el navegador: en 375px, cada carta se ve como tarjeta con su etiqueta, y el campo de precio y los botones no se salen de la tarjeta.
 
 ## Conceptos vistos
 - `fetch` devuelve una promesa; `.json()` también es asíncrono.

@@ -28,7 +28,7 @@ async function seedCollection() {
     const user = users[0];
 
     const { rows: cards } = await client.query(
-      'SELECT id FROM cards ORDER BY RANDOM() LIMIT $1',
+      'SELECT id FROM cards WHERE is_active = TRUE ORDER BY RANDOM() LIMIT $1',
       [CARDS_TO_ADD]
     );
 

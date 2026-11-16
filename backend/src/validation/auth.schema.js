@@ -34,4 +34,4 @@ const loginSchema = z.object(
   { error: 'El cuerpo de la petición debe ser un objeto JSON' }
 );
 
-module.exports = { registerSchema, loginSchema };
+module.exports = { registerSchema, loginSchema, usernameSchema };

@@ -1,8 +1,11 @@
 import { actualizarCabecera } from "../utils/header.js";
-import { iniciarPaginacion, pintarPaginacion, paginaActual } from "../utils/pagination.js";
-import { iniciarDetails } from "../utils/details.js";
+import { iniciarPaginacion, pintarPaginacion, paginaActual, reiniciarPaginacion } from "../utils/pagination.js";
+import { iniciarDetails, cargarDetails } from "../utils/details.js";
 import { vaciarCartas, añadirCarta, quitarCarta } from "../cards.js";
-import { cabeceraAutorizacion,usuarioLogueado } from "../Auth/auth.js";
+import { cabeceraAutorizacion,usuarioLogueado, sesionCaducada } from "../Auth/auth.js";
+import { iniciarRangos } from "../utils/rangos.js";
+import { iniciarFiltros, filtrosActuales } from "../utils/filters.js";
+import { formatearPrecio } from "../utils/precio.js";
 
 let cartas;
 
@@ -10,9 +13,17 @@ actualizarCabecera();
 
 iniciarDetails();
 
+iniciarRangos();
+
 iniciarPaginacion((nuevaPagina) => {
     vaciarCartas();
     cargarColeccion(nuevaPagina);
+});
+
+iniciarFiltros(() => {
+    reiniciarPaginacion();
+    vaciarCartas();
+    cargarColeccion(paginaActual());
 });
 
 cargarColeccion(paginaActual());
@@ -26,7 +37,11 @@ async function cargarColeccion(page = 1,limit = 12) {
     };
 
     try{
-        const respuesta = await fetch("/api/collection"+"?page="+page+"&limit="+limit, {
+        const params = filtrosActuales();
+        params.set("page", page);
+        params.set("limit", limit);
+
+        const respuesta = await fetch("/api/collection?" + params, {
             method: "GET",
             headers: {
                 ...cabecera
@@ -34,14 +49,20 @@ async function cargarColeccion(page = 1,limit = 12) {
         });
         const datos = await respuesta.json();
 
+        if (sesionCaducada(respuesta)) {
+            window.location.href = "/Auth/loginForm.html";
+            return;
+        }
+
         if(!respuesta.ok){
             const error = new Error(datos.error);
             error.details = datos.details;
             throw error;
         }
 
-        document.getElementById("err-cartas").textContent = "";
-        document.getElementById("err-cartas").hidden = true;
+        const errCartas = document.getElementById("err-cartas");
+        errCartas.textContent = datos.pagination.total === 0 ? "No hay cartas con esos filtros" : "";
+        errCartas.hidden = datos.pagination.total !== 0;
 
         let totalPages = datos.pagination.totalPages;
         
@@ -91,6 +112,16 @@ export function pintarColeccion( logued ){
         tipo.className = "tipo";
         contenedor.appendChild(tipo);
 
+        const rareza = document.createElement("p");
+        rareza.textContent = "Rareza: "+element.rarity;
+        rareza.className = "rareza";
+        contenedor.appendChild(rareza);
+
+        const precio = document.createElement("p");
+        precio.textContent = "Precio: "+formatearPrecio(element.price);
+        precio.className = "precio";
+        contenedor.appendChild(precio);
+
         if(logued === true){
             const funcionesColeccion = document.createElement("div");
             const quitarCartaBtn = document.createElement("button");
@@ -115,7 +146,9 @@ export function pintarColeccion( logued ){
                     vaciarCartas()
                     cargarColeccion(paginaActual());
                 } catch (error) {
-                    
+                    document.getElementById("err-cartas").textContent = error.message;
+                    document.getElementById("err-cartas").hidden = false;
+                    document.getElementById("paginacion").hidden = true;
                 }
             });
 
@@ -125,7 +158,9 @@ export function pintarColeccion( logued ){
                     vaciarCartas()
                     cargarColeccion(paginaActual());
                 } catch (error) {
-                    
+                    document.getElementById("err-cartas").textContent = error.message;
+                    document.getElementById("err-cartas").hidden = false;
+                    document.getElementById("paginacion").hidden = true;
                 }
             });
 
@@ -134,6 +169,8 @@ export function pintarColeccion( logued ){
             }else{
                 cartasAñadidas.textContent = element.quantity;
             }
+
+            añadirCartaBtn.disabled = element.quantity === 99;
             
 
             funcionesColeccion.appendChild(quitarCartaBtn);

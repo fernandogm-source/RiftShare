@@ -50,3 +50,13 @@ export function usuarioLogueado(){
     return false;
   }
 }
+export function sesionCaducada(respuesta) {
+    if (respuesta.status !== 401) {
+        return false;
+    }
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    return true;
+}

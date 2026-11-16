@@ -14,15 +14,56 @@
         </div>
         <div id="menu" hidden>
             <button id="coleccion">MI COLECCIÓN</button>
+            <button id="perfil" hidden>PERFIL</button>
+            <button id="admin" hidden>ADMIN</button>
         </div>
         <div id="loginRegisterbtn">
             <button id="toLogin">LogIn</button>
             <p id="headerUsername" hidden></p>
             <button id="toLogout" hidden>LogOut</button>
         </div>
+        <button id="menuToggle" class="menu-toggle" hidden>☰</button>
     </header>
     <main class="main-index">
         <h1>Cards</h1>
+        <form id="filtros" novalidate>
+            <input type="text" name="name" placeholder="Nombre">
+            <select name="set" id="filtroSet">
+                <option value="">Todos los sets</option>
+            </select>
+            <select name="domain" id="filtroDomain">
+                <option value="">Todos los dominios</option>
+            </select>
+            <select name="rarity" id="filtroRarity">
+                <option value="">Todas las rarezas</option>
+            </select>
+            <select name="type" id="filtroType">
+                <option value="">Todos los tipos</option>
+            </select>
+            <div class="rango">
+                <label>Might: <output id="mightValor">0 – 12</output></label>
+                <div class="slider-doble">
+                    <input type="range" name="might_min" min="0" max="12" value="0">
+                    <input type="range" name="might_max" min="0" max="12" value="12">
+                </div>
+            </div>
+            <div class="rango">
+                <label>Energy: <output id="energyValor">0 – 12</output></label>
+                <div class="slider-doble">
+                    <input type="range" name="energy_min" min="0" max="12" value="0">
+                    <input type="range" name="energy_max" min="0" max="12" value="12">
+                </div>
+            </div>
+            <div class="rango">
+                <label>Power: <output id="powerValor">0 – 4</output></label>
+                <div class="slider-doble">
+                    <input type="range" name="power_min" min="0" max="4" value="0">
+                    <input type="range" name="power_max" min="0" max="4" value="4">
+                </div>
+            </div>
+            <button type="submit" id="aplicarFiltros">Filtrar</button>
+            <button type="button" id="limpiarFiltros">Limpiar</button>
+        </form>
         <p id="err-cartas" class="err" hidden></p>
         <div id="cartas"></div>
         <div id="paginacion">
@@ -40,6 +81,8 @@
                 <p id="detailsDominio"></p>
                 <p class="etiquetaDetails">Rareza:</p>
                 <p id="detailsRareza"></p>
+                <p class="etiquetaDetails">Precio:</p>
+                <p id="detailsPrecio"></p>
                 <p class="etiquetaDetails">Texto:</p>
                 <p id="detailsTexto"></p>
             </div>

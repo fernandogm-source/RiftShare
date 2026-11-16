@@ -28,3 +28,7 @@ export function pintarPaginacion(total) {
 export function paginaActual() {
     return pagina;
 }
+
+export function reiniciarPaginacion() {
+    pagina = 1;
+}

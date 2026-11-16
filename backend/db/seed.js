@@ -7,6 +7,20 @@ const SCHEMA_FILE = path.join(__dirname, 'schema.sql');
 const COLLECTION_FILE = path.join(__dirname, 'collection.sql');
 const USERS_FILE = path.join(__dirname, 'users.sql');
 
+const RANGOS_PRECIO = {
+  Common: [0.1, 0.5],
+  Uncommon: [0.5, 2],
+  Rare: [2, 10],
+  Epic: [10, 30],
+  Showcase: [30, 80],
+  Promo: [5, 20],
+};
+
+function precioAleatorio(rareza) {
+  const [minimo, maximo] = RANGOS_PRECIO[rareza] ?? [0.1, 1];
+  return Number((minimo + Math.random() * (maximo - minimo)).toFixed(2));
+}
+
 async function getOrCreate(client, table, name, cache) {
   if (cache.has(name)) return cache.get(name);
   const { rows } = await client.query(
@@ -47,10 +61,10 @@ async function seed() {
           energy, might, power, card_type, supertype, rarity,
           text_rich, text_plain, flavour, set_id, artist, image_url,
           accessibility_text, clean_name, orientation,
-          alternate_art, overnumbered, signature, is_new, updated_on
+          alternate_art, overnumbered, signature, is_new, updated_on, price
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-          $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
+          $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26
         )`,
         [
           card.id,
@@ -78,6 +92,7 @@ async function seed() {
           card.metadata.signature,
           card.new ?? null,
           card.metadata.updated_on,
+          precioAleatorio(card.classification.rarity),
         ]
       );
 

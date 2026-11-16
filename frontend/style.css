@@ -193,6 +193,178 @@ header {
     margin-top: 20px;
     margin-left: 20px;
 }
+/*///////////////////////Filtros//////////////////////// */
+#filtros{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0 20px 20px;
+    padding: 10px;
+    border: solid 2px #C5A86A;
+    border-radius: 15px;
+}
+#filtros input[type="text"], #filtros select{
+    box-sizing: border-box;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 5px;
+    border: solid 2px #C5A86A;
+    background-color: #1A1A1A;
+    color: white;
+    font-family: inherit;
+}
+#filtros input[name="name"]{
+    flex: 1 1 200px;
+}
+.rango{
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+}
+.slider-doble{
+    --desde: 0%;
+    --hasta: 100%;
+    position: relative;
+    height: 20px;
+}
+.slider-doble::before{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    background: linear-gradient(to right,
+        #4A4A4A 0%,
+        #4A4A4A var(--desde),
+        #C5A86A var(--desde),
+        #C5A86A var(--hasta),
+        #4A4A4A var(--hasta),
+        #4A4A4A 100%);
+}
+.slider-doble input{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: none;
+    appearance: none;
+    pointer-events: none;
+}
+.slider-doble input::-webkit-slider-runnable-track{
+    height: 20px;
+    background: none;
+}
+.slider-doble input::-moz-range-track{
+    height: 20px;
+    background: none;
+}
+.slider-doble input::-webkit-slider-thumb{
+    appearance: none;
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    border-radius: 50%;
+    border: 2px solid #1A1A1A;
+    background-color: #C5A86A;
+    cursor: pointer;
+}
+.slider-doble input::-moz-range-thumb{
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #1A1A1A;
+    background-color: #C5A86A;
+    cursor: pointer;
+}
+#filtros button{
+    height: 40px;
+    padding: 0 15px;
+    border-radius: 5px;
+    border: solid 2px #C5A86A;
+    background-color: #1A1A1A;
+    color: #C5A86A;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+#filtros button:hover{
+    background-color: #C5A86A;
+    color: #1A1A1A;
+}
+/*///////////////////////Admin//////////////////////// */
+.tabla-admin{
+    width: calc(100% - 40px);
+    margin: 0 20px;
+    border-collapse: collapse;
+}
+.tabla-admin th, .tabla-admin td{
+    border-bottom: solid 1px #C5A86A;
+    padding: 8px;
+    text-align: left;
+}
+.tabla-admin input{
+    box-sizing: border-box;
+    width: 90px;
+    padding: 4px 6px;
+    margin-right: 6px;
+    border-radius: 5px;
+    border: solid 2px #C5A86A;
+    background-color: #1A1A1A;
+    color: white;
+    font-family: inherit;
+}
+.tabla-admin button{
+    border: solid 2px #C5A86A;
+    border-radius: 5px;
+    background-color: #1A1A1A;
+    color: #C5A86A;
+    padding: 5px 10px;
+    font-family: inherit;
+    cursor: pointer;
+}
+.tabla-admin button:hover{
+    background-color: #C5A86A;
+    color: #1A1A1A;
+}
+#busqueda{
+    display: flex;
+    gap: 10px;
+    margin: 0 20px 20px;
+}
+#buscarNombre{
+    flex: 1;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 5px;
+    border: solid 2px #C5A86A;
+    background-color: #1A1A1A;
+    color: white;
+    font-family: inherit;
+}
+#busqueda button{
+    height: 40px;
+    padding: 0 15px;
+    border-radius: 5px;
+    border: solid 2px #C5A86A;
+    background-color: #1A1A1A;
+    color: #C5A86A;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+#busqueda button:hover{
+    background-color: #C5A86A;
+    color: #1A1A1A;
+}
+/* /////////////////////////////////////////////////////////////////////////////// */
 /*///////////////////////Cartes//////////////////////// */
 #cartas{
     display: grid;
@@ -253,7 +425,7 @@ header {
 }
 /* /////////////////////////////////////////////////////////////////////////////// */
 /*///////////////////////FuncionesColeccion//////////////////////// */
-.nombre, .tipo{
+.nombre, .tipo, .rareza, .precio{
     margin: 0 0 8px;
 }
 .nombre{
@@ -272,6 +444,16 @@ header {
     font-size: 24px;
     min-width: 40px;
     text-align: center;
+}
+.btn:disabled{
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.btn:disabled:hover{
+    border: solid 2px #C5A86A;
+    background-color: #1A1A1A;
+    color: #C5A86A;
+    cursor: not-allowed;
 }
 /* /////////////////////////////////////////////////////////////////////////////// */
 /*///////////////////////Details//////////////////////// */
@@ -318,5 +500,183 @@ dialog::backdrop {
 .etiquetaDetails{
     font-weight: bold;
     color: #C5A86A;
+}
+
+/*///////////////////////Perfil//////////////////////// */
+.main-perfil{
+    background-color: #1A1A1A;
+    min-height: calc(100vh - 70px);
+    color: #C5A86A;
+    padding: 20px;
+}
+.main-perfil h1{
+    text-align: center;
+}
+.perfil{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 450px;
+    margin: 20px auto;
+    padding: 30px;
+    border: solid 2px #C5A86A;
+    border-radius: 15px;
+}
+.perfil h2{
+    margin: 0 0 10px;
+    font-size: 20px;
+}
+.perfil input{
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid 2px #C5A86A;
+    background-color: #1A1A1A;
+    color: white;
+    font-family: inherit;
+}
+.perfil button{
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 5px;
+    border: none;
+    background-color: #C5A86A;
+    color: #1A1A1A;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+.perfil button:hover{
+    opacity: 0.9;
+}
+.dato{
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+}
+
+/*///////////////////////Responsive//////////////////////// */
+.menu-toggle{
+    display: none;
+    height: 40px;
+    width: 44px;
+    margin-right: 15px;
+    font-size: 22px;
+    color: #C5A86A;
+    background-color: #1A1A1A;
+    border: solid 2px #C5A86A;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    header{
+        position: relative;
+    }
+    .menu-toggle:not([hidden]){
+        display: block;
+    }
+    #logo{
+        width: 140px;
+    }
+    #menu{
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        height: auto;
+        padding: 0;
+        flex-direction: column;
+        background-color: #1A1A1A;
+        border-bottom: solid 2px #C5A86A;
+        z-index: 10;
+    }
+    #menu.abierto{
+        display: flex;
+    }
+    #menu button{
+        width: 100%;
+        height: 50px;
+        border-left: none;
+        border-right: none;
+        border-top: solid 2px #C5A86A;
+    }
+    #filtros{
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #filtros input[name="name"]{
+        flex: none;
+    }
+    #filtros input[type="text"], #filtros select, #filtros button{
+        box-sizing: border-box;
+        width: 100%;
+    }
+    .rango{
+        width: 100%;
+    }
+    dialog:open{
+        flex-direction: column;
+        width: 90vw;
+        height: auto;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    dialog:open #imgDetails, dialog:open #infoDetails{
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    #logo img{
+        width: 100px;
+    }
+    #headerUsername{
+        display: none;
+    }
+    #loginRegisterbtn{
+        gap: 5px;
+        padding-right: 10px;
+    }
+    #loginRegisterbtn button{
+        padding: 8px 10px;
+    }
+    .menu-toggle{
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tabla-admin thead{
+        display: none;
+    }
+    .tabla-admin, .tabla-admin tbody, .tabla-admin tr, .tabla-admin td{
+        display: block;
+        width: 100%;
+    }
+    .tabla-admin tr{
+        margin-bottom: 15px;
+        padding: 10px;
+        border: solid 2px #C5A86A;
+        border-radius: 10px;
+    }
+    .tabla-admin td{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        border-bottom: none;
+        padding: 6px 0;
+    }
+    .tabla-admin td::before{
+        content: attr(data-label);
+        font-weight: bold;
+    }
+    .tabla-admin input{
+        width: 100px;
+        margin-right: 0;
+    }
 }
 /* /////////////////////////////////////////////////////////////////////////////// */

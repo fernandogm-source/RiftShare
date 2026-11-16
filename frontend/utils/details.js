@@ -1,3 +1,5 @@
+import { formatearPrecio } from "./precio.js";
+
 export function iniciarDetails(){
     document.getElementById("cerrarDetails").addEventListener("click", () =>{
         document.getElementById("details").close();
@@ -28,6 +30,7 @@ function pintarDetails(card){
     document.getElementById("detailsTipo").textContent = card.card_type;
     document.getElementById("detailsDominio").textContent = card.domains.join(", ");
     document.getElementById("detailsRareza").textContent = card.rarity;
+    document.getElementById("detailsPrecio").textContent = formatearPrecio(card.price);
     document.getElementById("detailsTexto").textContent = card.accessibility_text;
 
     document.getElementById("imgDetails").appendChild(img);
@@ -42,5 +45,6 @@ function borrarDetails(){
     document.getElementById("detailsTipo").textContent = "";
     document.getElementById("detailsDominio").textContent = "";
     document.getElementById("detailsRareza").textContent = "";
+    document.getElementById("detailsPrecio").textContent = "";
     document.getElementById("detailsTexto").textContent = "";
 }

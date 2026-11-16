@@ -1,18 +1,53 @@
 import { pintarPaginacion, paginaActual } from "./utils/pagination.js";
 import { cargarDetails } from "./utils/details.js";
-import { usuarioLogueado, cabeceraAutorizacion } from "./Auth/auth.js";
+import { usuarioLogueado, cabeceraAutorizacion, sesionCaducada } from "./Auth/auth.js";
+import { filtrosActuales } from "./utils/filters.js";
+import { formatearPrecio } from "./utils/precio.js";
 
 let cartas;
+let cantidades= {};
+
+async function cargarCantidades() {
+    if (!usuarioLogueado()) {
+        cantidades = {};
+        return;
+    }
+
+    try {
+        const respuesta = await fetch("/api/collection/quantities", {
+            headers: cabeceraAutorizacion()
+        });
+
+        sesionCaducada(respuesta);
+
+        if (!respuesta.ok) {
+            throw new Error("Error al cargar las cantidades");
+        }
+
+        cantidades = await respuesta.json();
+    } catch (error) {
+        cantidades = {};
+    }
+}
+
 export async function cargarCartas(page,limit = 12) {
     try {
-        const respuesta = await fetch("/api/cards?page="+page+"&limit="+limit);
+        const params = filtrosActuales();
+        params.set("page", page);
+        params.set("limit", limit);
+
+        const respuesta = await fetch("/api/cards?" + params);
         if(!respuesta.ok){throw new Error("Error al cargar las cartas");
         }
-        document.getElementById("err-cartas").hidden = true;
         const datos = await respuesta.json();
+        const errCartas = document.getElementById("err-cartas");
+        errCartas.textContent = datos.pagination.total === 0 ? "No hay cartas con esos filtros" : "";
+        errCartas.hidden = datos.pagination.total !== 0;
         cartas = datos.data;
         let totalPages = datos.pagination.totalPages;
         
+        await cargarCantidades();
+
         pintarPaginacion(totalPages);
 
         pintarCartas(usuarioLogueado());
@@ -22,10 +57,9 @@ export async function cargarCartas(page,limit = 12) {
         document.getElementById("err-cartas").hidden = false;
         document.getElementById("paginacion").hidden = true;
     }
-    
 };
 
-export function pintarCartas( logued ){
+export function pintarCartas(logued){
     cartas.forEach(element => {
 
         const contenedor = document.createElement("div");
@@ -58,6 +92,16 @@ export function pintarCartas( logued ){
         tipo.className = "tipo";
         contenedor.appendChild(tipo);
 
+        const rareza = document.createElement("p");
+        rareza.textContent = "Rareza: "+element.rarity;
+        rareza.className = "rareza";
+        contenedor.appendChild(rareza);
+
+        const precio = document.createElement("p");
+        precio.textContent = "Precio: "+formatearPrecio(element.price);
+        precio.className = "precio";
+        contenedor.appendChild(precio);
+
         if(logued === true){
             const funcionesColeccion = document.createElement("div");
             const quitarCartaBtn = document.createElement("button");
@@ -82,26 +126,28 @@ export function pintarCartas( logued ){
                     vaciarCartas()
                     cargarCartas(paginaActual());
                 } catch (error) {
-                    
+                    document.getElementById("err-cartas").textContent = error.message;
+                    document.getElementById("err-cartas").hidden = false;
+                    document.getElementById("paginacion").hidden = true;
                 }
             });
 
             quitarCartaBtn.addEventListener("click", async () =>{
                             try {
-                                await quitarCarta(element.id,element.quantity);
+                                await quitarCarta(element.id,cantidades[element.id]);
                                 vaciarCartas()
-                                cargarColeccion(paginaActual());
+                                cargarCartas(paginaActual());
                             } catch (error) {
-                                
+                                document.getElementById("err-cartas").textContent = error.message;
+                                document.getElementById("err-cartas").hidden = false;
+                                document.getElementById("paginacion").hidden = true;
                             }
                         });
 
-            if(element.quantity === undefined){
-                cartasAñadidas.textContent = 0;
-            }else{
-                cartasAñadidas.textContent = element.quantity;
-            }
-            
+            const cantidad = cantidades[element.id] ?? 0;
+            cartasAñadidas.textContent = cantidad;
+            quitarCartaBtn.disabled = cantidad === 0;
+            añadirCartaBtn.disabled = cantidad === 99;
 
             funcionesColeccion.appendChild(quitarCartaBtn);
             funcionesColeccion.appendChild(cartasAñadidas);
@@ -191,5 +237,4 @@ export async function quitarCarta(cardId, cantidadActual) {
     }
 
     return null;
-
 };

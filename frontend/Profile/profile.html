@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiftShare</title>
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <div id="logo">
+            <img src="/img/RiftShare-cropped.svg" alt="RiftShare">
+        </div>
+        <div id="menu" hidden>
+            <button id="coleccion">MI COLECCIÓN</button>
+            <button id="perfil" hidden>PERFIL</button>
+            <button id="admin" hidden>ADMIN</button>
+        </div>
+        <div id="loginRegisterbtn">
+            <button id="toLogin">LogIn</button>
+            <p id="headerUsername" hidden></p>
+            <button id="toLogout" hidden>LogOut</button>
+        </div>
+        <button id="menuToggle" class="menu-toggle" hidden>☰</button>
+    </header>
+    <main class="main-perfil">
+        <h1>Mi perfil</h1>
+        <p id="err-perfil" class="err" hidden></p>
+
+        <section class="perfil">
+            <p class="dato"><span>Email:</span> <span id="perfilEmail"></span></p>
+            <p class="dato"><span>Rol:</span> <span id="perfilRol"></span></p>
+            <p class="dato"><span>Contraseña:</span> <span id="perfilPassword"></span></p>
+            <p class="dato"><span>Cartas en la colección:</span> <span id="perfilCartas"></span></p>
+            <p class="dato"><span>Valor de la colección:</span> <span id="perfilValor"></span></p>
+        </section>
+
+        <form id="formNombre" class="perfil" novalidate>
+            <h2>Cambiar nombre de usuario</h2>
+            <label for="nombre">Nombre de usuario</label>
+            <input type="text" id="nombre">
+            <p id="err-nombre" class="err" hidden></p>
+            <p id="ok-nombre" hidden></p>
+            <button type="submit">Guardar nombre</button>
+        </form>
+
+        <form id="formPassword" class="perfil" novalidate>
+            <h2>Cambiar contraseña</h2>
+            <label for="contraseñaActual">Contraseña actual</label>
+            <input type="password" id="contraseñaActual">
+            <label for="contraseñaNueva">Contraseña nueva</label>
+            <input type="password" id="contraseñaNueva">
+            <label for="contraseñaRepetir">Repetir contraseña nueva</label>
+            <input type="password" id="contraseñaRepetir">
+            <p id="err-password" class="err" hidden></p>
+            <p id="ok-password" hidden></p>
+            <button type="submit">Cambiar contraseña</button>
+        </form>
+    </main>
+    <footer></footer>
+    <script src="profile.js" type="module"></script>
+</body>
+</html>

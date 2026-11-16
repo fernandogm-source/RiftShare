@@ -30,7 +30,7 @@ async function listCards(req, res) {
 
 async function getCard(req, res) {
   const { id } = req.validatedParams;
-  const { rows } = await pool.query(`${cardSelect()} WHERE c.id = $1`, [id]);
+  const { rows } = await pool.query(`${cardSelect()} WHERE c.id = $1 AND c.is_active = TRUE`, [id]);
 
   if (rows.length === 0) {
     return res.status(404).json({ error: 'Carta no encontrada' });

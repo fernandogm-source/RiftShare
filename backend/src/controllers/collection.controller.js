@@ -49,7 +49,7 @@ async function getSummary(req, res) {
       COUNT(ci.card_id)::int AS owned_cards,
       COALESCE(SUM(ci.quantity), 0)::int AS total_copies
     FROM sets s
-    JOIN cards c ON c.set_id = s.set_id
+    JOIN cards c ON c.set_id = s.set_id AND c.is_active = TRUE
     LEFT JOIN collection_items ci ON ci.card_id = c.id AND ci.user_id = $1
     GROUP BY s.set_id, s.label
     ORDER BY s.set_id
@@ -72,7 +72,7 @@ async function getQuantities(req, res) {
 async function addItem(req, res) {
   const { card_id: cardId, quantity } = req.body;
 
-  const card = await pool.query('SELECT id FROM cards WHERE id = $1', [cardId]);
+  const card = await pool.query('SELECT id FROM cards WHERE id = $1 AND is_active = TRUE', [cardId]);
   if (card.rowCount === 0) {
     return res.status(404).json({ error: 'Carta no encontrada' });
   }

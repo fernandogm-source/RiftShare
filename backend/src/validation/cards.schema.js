@@ -70,4 +70,4 @@ const cardIdParamSchema = z.object({
     .max(30, { error: 'El id de la carta no puede superar los 30 caracteres' }),
 });
 
-module.exports = { cardListQuerySchema, cardIdParamSchema };
+module.exports = { cardListQuerySchema, cardIdParamSchema, paginationShape };

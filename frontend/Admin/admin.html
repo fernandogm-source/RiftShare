@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiftShare</title>
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <div id="logo">
+            <img src="/img/RiftShare-cropped.svg" alt="RiftShare">
+        </div>
+        <div id="menu" hidden>
+            <button id="coleccion">MI COLECCIÓN</button>
+            <button id="perfil" hidden>PERFIL</button>
+            <button id="admin" hidden>ADMIN</button>
+        </div>
+        <div id="loginRegisterbtn">
+            <button id="toLogin">LogIn</button>
+            <p id="headerUsername" hidden></p>
+            <button id="toLogout" hidden>LogOut</button>
+        </div>
+        <button id="menuToggle" class="menu-toggle" hidden>☰</button>
+    </header>
+    <main class="main-index">
+        <h1>Administración de cartas</h1>
+        <form id="busqueda" novalidate>
+            <input type="text" id="buscarNombre" placeholder="Buscar por nombre">
+            <button type="submit" id="buscar">Buscar</button>
+        </form>
+        <p id="err-admin" class="err" hidden></p>
+        <table class="tabla-admin">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Set</th>
+                    <th>Tipo</th>
+                    <th>Rareza</th>
+                    <th>Estado</th>
+                    <th>Precio</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tablaCartas"></tbody>
+        </table>
+        <div id="paginacion">
+            <button id="anterior" class="btn">⭠</button>
+            <button id="siguiente" class="btn">⭢</button>
+        </div>
+    </main>
+    <footer></footer>
+    <script src="admin.js" type="module"></script>
+</body>
+</html>

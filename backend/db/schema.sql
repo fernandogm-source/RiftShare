@@ -36,7 +36,9 @@ CREATE TABLE cards (
   overnumbered       BOOLEAN NOT NULL DEFAULT FALSE,
   signature          BOOLEAN NOT NULL DEFAULT FALSE,
   is_new             BOOLEAN,
-  updated_on         TIMESTAMPTZ
+  updated_on         TIMESTAMPTZ,
+  is_active          BOOLEAN NOT NULL DEFAULT TRUE,
+  price              NUMERIC(10,2) NOT NULL
 );
 
 CREATE TABLE domains (

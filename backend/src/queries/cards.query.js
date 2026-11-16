@@ -32,6 +32,8 @@ function buildCardFilters(query) {
     filters.push(sql.replace('$?', `$${values.length}`));
   };
 
+  filters.push('c.is_active = TRUE');
+
   if (name) addFilter('c.name ILIKE $?', `%${name}%`);
   if (set) addFilter('c.set_id = $?', set);
   if (rarity) addFilter('c.rarity = $?', rarity);

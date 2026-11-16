@@ -1,8 +1,6 @@
 const argon2 = require('argon2');
-const jwt = require('jsonwebtoken');
 const pool = require('../db');
-
-const TOKEN_EXPIRES_IN = '1h';
+const { firmarToken } = require('../utils/token');
 
 async function register(req, res) {
   const { username, email, contraseña } = req.body;
@@ -39,18 +37,8 @@ async function login(req, res) {
     return res.status(401).json({ error: 'Email o contraseña incorrectos' });
   }
 
-  if (!process.env.JWT_SECRET) {
-    throw new Error('Falta JWT_SECRET en el .env');
-  }
-
-  const token = jwt.sign(
-    { username: user.username, role: user.role },
-    process.env.JWT_SECRET,
-    { subject: String(user.id), expiresIn: TOKEN_EXPIRES_IN }
-  );
-
   res.json({
-    token,
+    token: firmarToken(user),
     user: { id: user.id, username: user.username, email: user.email, role: user.role },
   });
 }
